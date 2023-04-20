@@ -18,9 +18,9 @@ import lombok.Setter;
 public class CharacterModel {
     
     @Id
-    String uid;
+    String _id;
     String name;
-    String born;
+    BornModel born;
     String died;
     String allegiance;
     String title;
@@ -37,23 +37,23 @@ public class CharacterModel {
     String mentioned;
     String portrayed;
 
-    public void fromMap(Map<String, String> datasCharacter) {
-        this.name = datasCharacter.get("Name");
-        this.born = datasCharacter.get("Born");
-        this.died = datasCharacter.get("Died");
-        this.allegiance = datasCharacter.get("Allegiance");
-        this.title = datasCharacter.get("Title(s)");
-        this.culture = datasCharacter.get("Culture");
-        this.father = datasCharacter.get("Father");
-        this.mother = datasCharacter.get("Mother");
-        this.sibling = datasCharacter.get("Sibling(s)");
-        this.series = datasCharacter.get("Series");
-        this.season = datasCharacter.get("Season(s)");
-        this.appeared = datasCharacter.get("Appeared in");
-        this.firstSee = datasCharacter.get("First seen in");
-        this.lastSee = datasCharacter.get("Last seen in");
-        this.diedIn = datasCharacter.get("Died in");
-        this.mentioned = datasCharacter.get("Mentioned in");
-        this.portrayed = datasCharacter.get("Portrayed by");
+    public void fromMap(Map<String, Object> datasCharacter) {
+        this.name = (String) datasCharacter.get("Name");
+        this.born = (BornModel) datasCharacter.get("Born");
+        this.died = (String) datasCharacter.get("Died");
+        this.allegiance = (String) datasCharacter.get("Allegiance");
+        this.title = (String) datasCharacter.get("Title(s)");
+        this.culture = (String) datasCharacter.get("Culture");
+        this.father = (String) datasCharacter.get("Father");
+        this.mother = (String) datasCharacter.get("Mother");
+        this.sibling = (String) datasCharacter.get("Sibling(s)");
+        this.series = (String) datasCharacter.get("Series");
+        this.season = (String) datasCharacter.get("Season(s)");
+        this.appeared = (String) datasCharacter.get("Appeared in");
+        this.firstSee = (String) datasCharacter.get("First seen in");
+        this.lastSee = (String) datasCharacter.get("Last seen in");
+        this.diedIn = (String) datasCharacter.get("Died in");
+        this.mentioned = (String) datasCharacter.get("Mentioned in");
+        this.portrayed = (String) datasCharacter.get("Portrayed by");
     }
 }

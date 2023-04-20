@@ -5,6 +5,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import com.vinicius.gameofthrones.Models.BornModel;
 import com.vinicius.gameofthrones.Models.CharacterModel;
 
 import java.io.IOException;
@@ -27,24 +28,36 @@ public class ScrapingUtil {
                 Document docChar = Jsoup.connect(urlCharacters + character.text()).get();
                 Elements datas = docChar.select("div .pi-item .pi-data");
 
-                Map<String, String> datasCharacter = new HashMap<>();
-                // Map<Elements, Elements> datasCharacter = new HashMap<>();
+                Map<String, Object> datasCharacter = new HashMap<>();
+
                 CharacterModel characterModel = new CharacterModel();
 
+                datasCharacter.put("Name", character.text());
                 datas.forEach(data -> {
-                    System.out.println("-----------------------------------");
-                    datasCharacter.put(data.select(".pi-data-label").text(), data.select("div .pi-data-value").text());
-                    // datasCharacter.put(data.select(".pi-data-label"), data.select("div
-                    // .pi-data-value"));
 
-                    // System.out.println(data);
-                    System.out.println("-----------------------------------");
+                    String label = data.select(".pi-data-label").text();
+                    if (label.equals("Born")) {
+                    
+                        Elements born = data.select("div .pi-data-value").first().children().select("a");
+                        Map<String, String> bornCharacter = new HashMap<>();
+                    
+                        bornCharacter.put("Timeline", born.select("[title=\"Timeline\"]").text());
+                        bornCharacter.put("Local", born.last().text());
+                    
+                        BornModel bornModel = new BornModel();
+                        bornModel.fromMap(bornCharacter);
+                    
+                        datasCharacter.put(label, bornModel);
+
+                    } else {
+                        datasCharacter.put(label,
+                                data.select("div .pi-data-value").text());
+                    }
+
                 });
-                System.out.println(datasCharacter);
 
                 characterModel.fromMap(datasCharacter);
-                System.out.println("33333333333333333333333333333333333");
-                System.out.println(characterModel.getName());
+
                 characters.add(characterModel);
                 /*
                  * Elements label = docChar.select(".pi-data-label");
