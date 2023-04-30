@@ -16,12 +16,12 @@ import lombok.Setter;
 @Setter
 @Document
 public class CharacterModel {
-    
+
     @Id
     String _id;
     String name;
     BornModel born;
-    String died;
+    DiedModel died;
     String allegiance;
     String title;
     String culture;
@@ -38,9 +38,11 @@ public class CharacterModel {
     String portrayed;
 
     public void fromMap(Map<String, Object> datasCharacter) {
+        System.out.println(datasCharacter.get("Born"));
+
         this.name = (String) datasCharacter.get("Name");
         this.born = (BornModel) datasCharacter.get("Born");
-        this.died = (String) datasCharacter.get("Died");
+        this.died = (DiedModel) datasCharacter.get("Died");
         this.allegiance = (String) datasCharacter.get("Allegiance");
         this.title = (String) datasCharacter.get("Title(s)");
         this.culture = (String) datasCharacter.get("Culture");
