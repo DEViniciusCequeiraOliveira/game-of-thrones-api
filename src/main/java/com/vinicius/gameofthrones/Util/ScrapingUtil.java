@@ -8,8 +8,6 @@ import org.jsoup.select.Elements;
 import com.vinicius.gameofthrones.Models.BornModel;
 import com.vinicius.gameofthrones.Models.CharacterModel;
 import com.vinicius.gameofthrones.Models.DiedModel;
-import com.vinicius.gameofthrones.dto.BornModelDTO;
-import com.vinicius.gameofthrones.dto.DiedModelDTO;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -27,7 +25,18 @@ public class ScrapingUtil {
     static List<String> locationList = new ArrayList<>();
     // Essas localizações precisam ser declaradas pois eelas geram um loop infinito
     final static List<String> LOCATION_STRINGS = new ArrayList<>(
-            Arrays.asList("Category:Bay of Seals", "Category:Skagos"));
+            Arrays.asList("Category:Bay of Seals", "Category:Skagos", "Category:Gift"));
+
+    public static String removeAscString(String texto) {
+        if (texto != null) {
+            //
+            texto = texto.replaceAll("[\\[\\]{}\"]", "").trim();
+            texto = texto.replaceAll("\\[\\d+\\]", "").trim();
+            //
+            return texto.replaceAll("[\\[\\]{}\"]", "").trim().replaceAll("\\[\\d+\\]", "").trim();
+        }
+        return "";
+    }
 
     public static List<CharacterModel> getDados() throws IOException {
         List<CharacterModel> characters = new ArrayList<>();
@@ -49,8 +58,6 @@ public class ScrapingUtil {
                 datas.forEach(data -> {
 
                     String label = data.select(".pi-data-label").text();
-                    // System.out.println(character.text());
-                    // System.out.println(label);
                     if (label.equals("Born")) {
                         datasCharacter.put("Born", getBorn(data));
 
@@ -92,7 +99,7 @@ public class ScrapingUtil {
             bornCharacter.put("Local",
                     locationList.contains(bornElements.get(1).text()) ? bornElements.get(1).text() : "");
         }
-        System.out.println(bornElements.size());
+
         BornModel bornModel = new BornModel();
 
         bornModel.fromMap(bornCharacter);
@@ -121,6 +128,7 @@ public class ScrapingUtil {
 
         links.forEach(link -> {
             try {
+                System.out.println(link.text());
                 if (link.text().contains("Category") && !link.text().contains("culture")) {
                     if (!LOCATION_STRINGS.contains(link.text())) {
                         getLocation(url + link.text());
@@ -130,7 +138,6 @@ public class ScrapingUtil {
                 } else if (!link.text().contains("Category") && !locationList.contains(link.text())) {
                     locationList.add(link.text());
                 }
-
             } catch (Exception e) {
                 e.printStackTrace();
 

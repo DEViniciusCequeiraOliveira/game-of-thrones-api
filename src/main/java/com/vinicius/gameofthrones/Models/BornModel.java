@@ -18,9 +18,6 @@ public class BornModel {
     private String local;
 
     public void fromMap(Map<String, String> bornCharacter) {
-        System.out.println("--------------------------");
-        System.out.println(bornCharacter);
-        System.out.println("--------------------------");
         this.timeline = bornCharacter.get("Timeline");
         this.local = bornCharacter.get("Local");
     }

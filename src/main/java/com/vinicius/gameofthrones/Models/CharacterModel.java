@@ -5,6 +5,8 @@ import java.util.Map;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import com.vinicius.gameofthrones.Util.ScrapingUtil;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,7 +16,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Getter
 @Setter
-@Document
+@Document(collection = "character")
 public class CharacterModel {
 
     @Id
@@ -40,22 +42,23 @@ public class CharacterModel {
     public void fromMap(Map<String, Object> datasCharacter) {
         System.out.println(datasCharacter.get("Born"));
 
-        this.name = (String) datasCharacter.get("Name");
+        this.name = ScrapingUtil.removeAscString((String) datasCharacter.get("Name"));
         this.born = (BornModel) datasCharacter.get("Born");
         this.died = (DiedModel) datasCharacter.get("Died");
-        this.allegiance = (String) datasCharacter.get("Allegiance");
-        this.title = (String) datasCharacter.get("Title(s)");
-        this.culture = (String) datasCharacter.get("Culture");
-        this.father = (String) datasCharacter.get("Father");
-        this.mother = (String) datasCharacter.get("Mother");
-        this.sibling = (String) datasCharacter.get("Sibling(s)");
-        this.series = (String) datasCharacter.get("Series");
-        this.season = (String) datasCharacter.get("Season(s)");
-        this.appeared = (String) datasCharacter.get("Appeared in");
-        this.firstSee = (String) datasCharacter.get("First seen in");
-        this.lastSee = (String) datasCharacter.get("Last seen in");
-        this.diedIn = (String) datasCharacter.get("Died in");
-        this.mentioned = (String) datasCharacter.get("Mentioned in");
-        this.portrayed = (String) datasCharacter.get("Portrayed by");
+        this.allegiance = ScrapingUtil.removeAscString((String) datasCharacter.get("Allegiance"));
+        this.title = ScrapingUtil.removeAscString((String) datasCharacter.get("Title(s)"));
+        this.culture = ScrapingUtil.removeAscString((String) datasCharacter.get("Culture"));
+        this.father = ScrapingUtil.removeAscString((String) datasCharacter.get("Father"));
+        this.mother = ScrapingUtil.removeAscString((String) datasCharacter.get("Mother"));
+        this.sibling = ScrapingUtil.removeAscString((String) datasCharacter.get("Sibling(s)"));
+        this.series = ScrapingUtil.removeAscString((String) datasCharacter.get("Series"));
+        this.season = ScrapingUtil.removeAscString((String) datasCharacter.get("Season(s)"));
+        this.appeared = ScrapingUtil.removeAscString((String) datasCharacter.get("Appeared in"));
+        this.firstSee = ScrapingUtil.removeAscString((String) datasCharacter.get("First seen in"));
+        this.lastSee = ScrapingUtil.removeAscString((String) datasCharacter.get("Last seen in"));
+        this.diedIn = ScrapingUtil.removeAscString((String) datasCharacter.get("Died in"));
+        this.mentioned = ScrapingUtil.removeAscString((String) datasCharacter.get("Mentioned in"));
+        this.portrayed = ScrapingUtil.removeAscString((String) datasCharacter.get("Portrayed by"));
     }
+
 }

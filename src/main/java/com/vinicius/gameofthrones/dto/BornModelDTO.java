@@ -2,6 +2,11 @@ package com.vinicius.gameofthrones.dto;
 
 import java.util.Map;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
 public class BornModelDTO {
     private String timeline;
     private String local;
