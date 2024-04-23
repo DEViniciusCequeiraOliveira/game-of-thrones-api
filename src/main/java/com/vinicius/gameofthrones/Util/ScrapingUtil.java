@@ -29,11 +29,7 @@ public class ScrapingUtil {
 
     public static String removeAscString(String texto) {
         if (texto != null) {
-            //
-            texto = texto.replaceAll("[\\[\\]{}\"]", "").trim();
-            texto = texto.replaceAll("\\[\\d+\\]", "").trim();
-            //
-            return texto.replaceAll("[\\[\\]{}\"]", "").trim().replaceAll("\\[\\d+\\]", "").trim();
+            return texto = texto.replaceAll("\\[\\d+\\]", "").trim().replaceAll("[\\[\\]{}\"]", "").trim();
         }
         return "";
     }
@@ -140,7 +136,6 @@ public class ScrapingUtil {
                 }
             } catch (Exception e) {
                 e.printStackTrace();
-
             }
         });
         return locationList;

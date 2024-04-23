@@ -12,8 +12,8 @@ import lombok.Setter;
 public class CharacterDTO {
     String _id;
     String name;
-    BornModel born;
-    DiedModel died;
+    BornModelDTO born;
+    DiedModelDTO died;
     String allegiance;
     String title;
     String culture;
@@ -32,8 +32,8 @@ public class CharacterDTO {
     public CharacterDTO(CharacterModel character) {
         this._id = character.get_id();
         this.name = character.getName();
-        this.born = character.getBorn();
-        this.died = character.getDied();
+        this.born = new BornModelDTO(character.getBorn());
+        this.died = new DiedModelDTO(character.getDied());
         this.allegiance = character.getAllegiance();
         this.title = character.getTitle();
         this.culture = character.getCulture();

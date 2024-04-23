@@ -22,8 +22,8 @@ public class CharacterModel {
     @Id
     String _id;
     String name;
-    BornModel born;
-    DiedModel died;
+    BornModel born = new BornModel();
+    DiedModel died = new DiedModel();
     String allegiance;
     String title;
     String culture;
