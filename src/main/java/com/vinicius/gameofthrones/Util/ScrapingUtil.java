@@ -49,7 +49,9 @@ public class ScrapingUtil {
                 Map<String, Object> datasCharacter = new HashMap<>();
 
                 CharacterModel characterModel = new CharacterModel();
-
+                
+                
+                datasCharacter.put("Image", docChar.select(".pi-image-thumbnail").attr("src"));
                 datasCharacter.put("Name", character.text());
                 datas.forEach(data -> {
 
@@ -123,8 +125,7 @@ public class ScrapingUtil {
         Elements links = doc.select(".category-page__member-link");
 
         links.forEach(link -> {
-            try {
-                System.out.println(link.text());
+            try {                
                 if (link.text().contains("Category") && !link.text().contains("culture")) {
                     if (!LOCATION_STRINGS.contains(link.text())) {
                         getLocation(url + link.text());

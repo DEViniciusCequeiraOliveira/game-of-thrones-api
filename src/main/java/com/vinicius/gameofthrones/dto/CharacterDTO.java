@@ -1,8 +1,6 @@
 package com.vinicius.gameofthrones.dto;
 
-import com.vinicius.gameofthrones.Models.BornModel;
 import com.vinicius.gameofthrones.Models.CharacterModel;
-import com.vinicius.gameofthrones.Models.DiedModel;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -28,7 +26,8 @@ public class CharacterDTO {
     String diedIn;
     String mentioned;
     String portrayed;
-    
+    String image;
+
     public CharacterDTO(CharacterModel character) {
         this._id = character.get_id();
         this.name = character.getName();
@@ -47,6 +46,7 @@ public class CharacterDTO {
         this.lastSee = character.getLastSee();
         this.diedIn = character.getDiedIn();
         this.mentioned = character.getMentioned();
-        this.portrayed = character.getPortrayed();  
+        this.portrayed = character.getPortrayed();
+        this.image = character.getImage();
     }
 }

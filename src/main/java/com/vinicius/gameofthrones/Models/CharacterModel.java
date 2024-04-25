@@ -38,10 +38,9 @@ public class CharacterModel {
     String diedIn;
     String mentioned;
     String portrayed;
+    String image;
 
     public void fromMap(Map<String, Object> datasCharacter) {
-        System.out.println(datasCharacter.get("Born"));
-
         this.name = ScrapingUtil.removeAscString((String) datasCharacter.get("Name"));
         this.born = (BornModel) datasCharacter.get("Born");
         this.died = (DiedModel) datasCharacter.get("Died");
@@ -59,6 +58,8 @@ public class CharacterModel {
         this.diedIn = ScrapingUtil.removeAscString((String) datasCharacter.get("Died in"));
         this.mentioned = ScrapingUtil.removeAscString((String) datasCharacter.get("Mentioned in"));
         this.portrayed = ScrapingUtil.removeAscString((String) datasCharacter.get("Portrayed by"));
+        this.image = (String) datasCharacter.get("Image");
+        System.out.println("Born: " + datasCharacter.get("Born"));
     }
 
 }
