@@ -4,10 +4,12 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.springframework.cglib.core.Local;
 
 import com.vinicius.gameofthrones.Models.BornModel;
 import com.vinicius.gameofthrones.Models.CharacterModel;
 import com.vinicius.gameofthrones.Models.DiedModel;
+import com.vinicius.gameofthrones.Models.LocalModel;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -22,7 +24,7 @@ public class ScrapingUtil {
     final static String urlLocation = "https://gameofthrones.fandom.com/wiki/Category:Continents";
     final static String url = "https://gameofthrones.fandom.com/wiki/";
 
-    static List<String> locationList = new ArrayList<>();
+    static List<LocalModel> locationList = new ArrayList<>();
     // Essas localizações precisam ser declaradas pois eelas geram um loop infinito
     final static List<String> LOCATION_STRINGS = new ArrayList<>(
             Arrays.asList("Category:Bay of Seals", "Category:Skagos", "Category:Gift"));
@@ -120,12 +122,13 @@ public class ScrapingUtil {
         return diedModel;
     }
 
-    private static List<String> getLocation(String urlLocation) throws IOException {
+    private static List<LocalModel> getLocation(String urlLocation) throws IOException {
         Document doc = Jsoup.connect(urlLocation).get();
         Elements links = doc.select(".category-page__member-link");
 
         links.forEach(link -> {
-            try {                
+            try {
+                           
                 if (link.text().contains("Category") && !link.text().contains("culture")) {
                     if (!LOCATION_STRINGS.contains(link.text())) {
                         getLocation(url + link.text());
