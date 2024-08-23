@@ -11,7 +11,7 @@ import java.util.*;
 import java.util.regex.Pattern;
 
 public class ScrapingUtil {
-
+    final static String urlCastles = "https://gameofthrones.fandom.com/wiki/Category:Castles";
     final static String urlCharacters = "https://gameofthrones.fandom.com/wiki/Category:Individuals_appearing_in_Game_of_Thrones";
     final static String urlHouses = "https://gameofthrones.fandom.com/wiki/Category:Great_Houses";
     final static String urlLocation = "https://gameofthrones.fandom.com/wiki/Category:Continents";
@@ -220,25 +220,78 @@ public class ScrapingUtil {
 
     }
 
-    private static void formatarElementos(String nome, String element, Element data, String label, Map<String, Object> datasHouse) {
-        // cria objetos para melhorar a formataçao dos elementos
-        if (label.equals(element)) {
-            Elements dados = data.select("div.pi-data-value.pi-font a");
-            List<GeralModel> geralModel = new ArrayList<>();
+    public static List<CastlesDados> getCastles() throws IOException {
+        final String url = "https://gameofthrones.fandom.com";
+        List<CastlesDados> castlesList = new ArrayList<>();
+        Document doc = Jsoup.connect(urlCastles).get();
+        Elements links = doc.select(".category-page__member-link");
+        //Categoria de regioes de Westeros
+        links.forEach(link -> {
+            try {
+                Document docChar = Jsoup.connect(url + link.attr("href")).get();
+                String categoryCastlesName = link.text();
+                Map<String, Object> castlesMap = new HashMap<>();
+                castlesMap.put("name", categoryCastlesName);
 
-            dados.forEach(dado -> {
-                // cria um objeto para cada casa
-                GeralModel vm = new GeralModel();
-                vm.setName(dado.text());
-                vm.setLabel(label);
-                geralModel.add(vm);
-            });
-            // Adiciona a lista de items ao mapa
-            datasHouse.put(nome, geralModel);
-        } else {
-            // Adiciona outros dados ao mapa
-            String value = data.select("div.pi-data-value").text();
-            datasHouse.put(label, value);
-        }
+                Elements links2 = docChar.select(".category-page__member-link");
+                List<CastlesModel> castlesModels = new ArrayList<>();
+                //Regioes de Westeros
+                links2.forEach(element -> {
+                    try {
+                        Document docChar2 = Jsoup.connect(url + element.attr("href")).get();
+                        Map<String, Object> castlesObj = new HashMap<>();
+                        castlesObj.put("name", element.text());
+                        // Castelos da regiao
+                        Elements details = docChar2.select(".pi-item");
+                        for (Element detail : details) {
+                            String label = detail.select("h3.pi-data-label").text();
+                            String value = detail.select("div.pi-data-value.pi-font").text();
+                            castlesObj.put(label, value);
+                        }
+
+                        CastlesModel castlesModel = new CastlesModel();
+                        castlesModel.fromMap(castlesObj);
+                        castlesModels.add(castlesModel);
+
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                });
+
+                castlesMap.put("castles", castlesModels);
+                CastlesDados castlesDados = new CastlesDados();
+                castlesDados.fromMap(castlesMap);
+                castlesList.add(castlesDados);
+            } catch (Exception e) {
+                System.out.println("\n------------------------------------");
+                System.out.println(link.text());
+                System.out.println(currentUrl + link.attr("href"));
+                System.out.println(e.getMessage());
+                System.out.println("------------------------------------\n");
+            }
+        });
+        return castlesList;
     }
+
+private static void formatarElementos(String nome, String element, Element data, String label, Map<String, Object> datasHouse) {
+    // cria objetos para melhorar a formataçao dos elementos
+    if (label.equals(element)) {
+        Elements dados = data.select("div.pi-data-value.pi-font a");
+        List<GeralModel> geralModel = new ArrayList<>();
+
+        dados.forEach(dado -> {
+            // cria um objeto para cada casa
+            GeralModel vm = new GeralModel();
+            vm.setName(dado.text());
+            vm.setLabel(label);
+            geralModel.add(vm);
+        });
+        // Adiciona a lista de items ao mapa
+        datasHouse.put(nome, geralModel);
+    } else {
+        // Adiciona outros dados ao mapa
+        String value = data.select("div.pi-data-value").text();
+        datasHouse.put(label, value);
+    }
+}
 }
