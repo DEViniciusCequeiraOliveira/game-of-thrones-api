@@ -2,23 +2,19 @@ package com.vinicius.gameofthrones.Models;
 
 import java.util.Map;
 
+import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import com.vinicius.gameofthrones.Util.ScrapingUtil;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
+@ToString
 @Document(collection = "character")
 public class CharacterModel {
-
     @Id
     String _id;
     String name;
@@ -42,6 +38,7 @@ public class CharacterModel {
 
     public void fromMap(Map<String, Object> datasCharacter) {
         this.name = ScrapingUtil.removeAscString((String) datasCharacter.get("Name"));
+        System.out.println(ScrapingUtil.removeAscString((String) datasCharacter.get("Name")));
         this.born = (BornModel) datasCharacter.get("Born");
         this.died = (DiedModel) datasCharacter.get("Died");
         this.allegiance = ScrapingUtil.removeAscString((String) datasCharacter.get("Allegiance"));
