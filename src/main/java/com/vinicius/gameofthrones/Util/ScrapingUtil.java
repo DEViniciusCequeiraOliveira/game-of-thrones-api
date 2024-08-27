@@ -19,6 +19,7 @@ public class ScrapingUtil {
     final static String url = "https://gameofthrones.fandom.com/";
     private static Set<String> processedLinks = new HashSet<>();
     private static Set<String> locationList = new HashSet<>();
+    private static final List<MembersModel> list = new ArrayList<>();
 
     final static List<String> LOCATION_STRINGS = new ArrayList<>(
             Arrays.asList("Category:Bay of Seals", "Category:Skagos", "Category:Gift"));
@@ -30,73 +31,76 @@ public class ScrapingUtil {
         return "";
     }
 
-    public static List<CharacterModel> getDados() throws IOException {
-        List<CharacterModel> characters = new ArrayList<>();
-        locationList = getLocation(urlLocation);
-        String currentUrl = urlCharacters;
-        Document doc;
+    public static List<CharacterModel> getCharacter() throws IOException {
+        try {
+            List<CharacterModel> characters = new ArrayList<>();
+            String currentUrl = urlCharacters;
+            Document doc;
 
-        // Loop de paginação
-        while (currentUrl != null) {
-            doc = Jsoup.connect(currentUrl).get();
-            Elements links = doc.select(".category-page__member-link");
-            links.forEach(character -> {
-                try {
-                    Document docChar = Jsoup.connect(url + character.attr("href")).get();
-                    Elements datas = docChar.select("div .pi-item .pi-data");
-                    Map<String, Object> datasCharacter = new HashMap<>();
+            // Loop de paginação
+            while (currentUrl != null) {
+                doc = Jsoup.connect(currentUrl).get();
+                Elements links = doc.select(".category-page__member-link");
+                links.forEach(character -> {
+                    try {
+                        Document docChar = Jsoup.connect(url + character.attr("href")).get();
+                        Elements datas = docChar.select("div .pi-item .pi-data");
+                        Map<String, Object> datasCharacter = new HashMap<>();
 
-                    CharacterModel characterModel = new CharacterModel();
-                    datasCharacter.put("Image", docChar.select(".pi-image-thumbnail").attr("src"));
-                    datasCharacter.put("Name", character.text());
+                        CharacterModel characterModel = new CharacterModel();
+                        datasCharacter.put("Image", docChar.select(".pi-image-thumbnail").attr("src"));
+                        datasCharacter.put("Name", character.text());
 
-                    datas.forEach(data -> {
-                        String label = data.select(".pi-data-label").text();
-                        if (label.equals("Born")) {
-                            datasCharacter.put("Born", getBorn(data));
-                        } else if (label.equals("Died")) {
-                            datasCharacter.put("Died", getDied(data));
-                        } else {
-                            datasCharacter.put(label, data.select("div .pi-data-value").text());
-                        }
-                    });
+                        datas.forEach(data -> {
+                            String label = data.select(".pi-data-label").text();
+                            if (label.equals("Born")) {
+                                datasCharacter.put("Born", getBorn(data));
+                            } else if (label.equals("Died")) {
+                                datasCharacter.put("Died", getDied(data));
+                            } else {
+                                datasCharacter.put(label, data.select("div .pi-data-value").text());
+                            }
+                        });
 
-                    characterModel.fromMap(datasCharacter);
-                    characters.add(characterModel);
+                        characterModel.fromMap(datasCharacter);
+                        characters.add(characterModel);
 
+                    } catch (Exception e) {
+                        System.out.println("\n------------------------------------");
+                        System.out.println(character.text());
+                        System.out.println(url + character.attr("href"));
+                        System.out.println(e.getMessage());
+                        System.out.println("------------------------------------\n");
+                    }
+                });
 
-                } catch (Exception e) {
-                    System.out.println("\n------------------------------------");
-                    System.out.println(character.text());
-                    System.out.println(url + character.attr("href"));
-                    System.out.println(e.getMessage());
-                    System.out.println("------------------------------------\n");
+                // Verifica se existe um botão "Próxima Página" para continuar a navegação
+                Element nextPageButton = doc.selectFirst(".category-page__pagination-next");
+                if (nextPageButton != null) {
+                    String nextPageHref = nextPageButton.attr("href");
+                    currentUrl = nextPageHref;
+                    System.out.println(currentUrl);
+                } else {
+                    currentUrl = null;
                 }
-            });
-
-            // Verifica se existe um botão "Próxima Página" para continuar a navegação
-            Element nextPageButton = doc.selectFirst(".category-page__pagination-next");
-            if (nextPageButton != null) {
-                String nextPageHref = nextPageButton.attr("href");
-                currentUrl = "https://gameofthrones.fandom.com" + nextPageHref;
-            } else {
-                currentUrl = null;
             }
-
+            return characters;
+        } catch (Exception e) {
+            System.out.println("\n------------------------------------");
+            System.out.println(currentUrl);
+            System.out.println(e.getMessage());
+            System.out.println("------------------------------------\n");
         }
-
-        return characters;
+        return null;
     }
 
     // essa merda funciona mas não mepeia os dados 100%
     private static BornModel getBorn(Element data) {
-        // Seleciona todos os elementos <a> dentro do div com a classe pi-data-value
+
         Elements bornElements = data.select("div.pi-data-value.pi-font a");
         Map<String, String> bornCharacter = new HashMap<>();
 
-        // Verifica se há pelo menos um <a> com atributo title para o ano de nascimento
-        if (bornElements.size() > 0) {
-            // Extrai o ano de nascimento do primeiro <a> com atributo title
+        if (!bornElements.isEmpty()) {
             String year = bornElements.get(0).attr("title");
             bornCharacter.put("Timeline", year);
         } else {
@@ -110,14 +114,14 @@ public class ScrapingUtil {
             String text = bornElements.get(i).text();
             text = removePattern.matcher(text).replaceAll("");
             if (!text.trim().isEmpty()) {
-                if (location.length() > 0) {
+                if (!location.isEmpty()) {
                     location.append(", ");
                 }
                 location.append(text.trim());
             }
         }
 
-        bornCharacter.put("Local", location.length() > 0 ? location.toString() : "unknown");
+        bornCharacter.put("Local", !location.isEmpty() ? location.toString() : "unknown");
 
         BornModel bornModel = new BornModel();
         bornModel.fromMap(bornCharacter);
@@ -138,7 +142,7 @@ public class ScrapingUtil {
         return diedModel;
     }
 
-    private static Set<String> getLocation(String urlLocation) throws IOException {
+    public static Set<String> getLocation(String urlLocation) throws IOException {
         Set<String> locations = new HashSet<>();
         Queue<String> queue = new LinkedList<>();
         queue.add(urlLocation);
@@ -155,20 +159,21 @@ public class ScrapingUtil {
 
                 for (Element link : links) {
                     String linkText = link.text();
-                    String linkUrl = url + link.attr("href");  // Formar URL completa
+                    String linkUrl = url + link.attr("href");
+                    System.out.println(linkUrl);
+
                     if (linkText.contains("Category") && !linkText.contains("culture")) {
                         if (!LOCATION_STRINGS.contains(linkText)) {
                             queue.add(linkUrl);
                         } else {
                             locations.add(linkText.replace("Category:", ""));
                         }
-                    } else if (!linkText.contains("Category") && !locations.contains(linkText)) {
+                    } else if (!linkText.contains("Category")) {
                         locations.add(linkText);
                     }
                 }
             } catch (IOException e) {
                 System.err.println("Failed to fetch URL: " + currentUrl);
-                e.printStackTrace();
             }
         }
 
@@ -178,6 +183,7 @@ public class ScrapingUtil {
     public static List<HouseModel> getHouse() throws IOException {
         List<HouseModel> houses = new ArrayList<>();
         Document doc = Jsoup.connect(urlHouses).get();
+
         Elements datas = doc.select(".category-page__member-link");
 
         datas.forEach(house -> {
@@ -221,9 +227,9 @@ public class ScrapingUtil {
     }
 
     public static List<CastlesDados> getCastles() throws IOException {
-        final String url = "https://gameofthrones.fandom.com";
         List<CastlesDados> castlesList = new ArrayList<>();
         Document doc = Jsoup.connect(urlCastles).get();
+
         Elements links = doc.select(".category-page__member-link");
         //Categoria de regioes de Westeros
         links.forEach(link -> {
@@ -260,8 +266,10 @@ public class ScrapingUtil {
 
                 castlesMap.put("castles", castlesModels);
                 CastlesDados castlesDados = new CastlesDados();
+
                 castlesDados.fromMap(castlesMap);
                 castlesList.add(castlesDados);
+
             } catch (Exception e) {
                 System.out.println("\n------------------------------------");
                 System.out.println(link.text());
@@ -273,25 +281,118 @@ public class ScrapingUtil {
         return castlesList;
     }
 
-private static void formatarElementos(String nome, String element, Element data, String label, Map<String, Object> datasHouse) {
-    // cria objetos para melhorar a formataçao dos elementos
-    if (label.equals(element)) {
-        Elements dados = data.select("div.pi-data-value.pi-font a");
-        List<GeralModel> geralModel = new ArrayList<>();
+    public static List<MembersModel> processeLink(String urlLocation) throws IOException {
 
-        dados.forEach(dado -> {
-            // cria um objeto para cada casa
-            GeralModel vm = new GeralModel();
-            vm.setName(dado.text());
-            vm.setLabel(label);
-            geralModel.add(vm);
-        });
-        // Adiciona a lista de items ao mapa
-        datasHouse.put(nome, geralModel);
-    } else {
-        // Adiciona outros dados ao mapa
-        String value = data.select("div.pi-data-value").text();
-        datasHouse.put(label, value);
+        Document doc = Jsoup.connect(urlLocation).get();
+        Elements links = doc.select(".category-page__member-link");
+
+        if (!links.isEmpty()) {
+            links.forEach(link -> {
+                try {
+                    String href = link.attr("href");
+                    String title = link.attr("title");
+
+                    if (title.contains("Members")) {
+                        String fullUrl = url + href;
+                        list.add(getMemberCharacter(fullUrl));
+                        processeLink(fullUrl);
+                    } else {
+                        String nextUrl = url + href;
+                        processeLink(nextUrl);
+                    }
+                } catch (Exception e) {
+                    System.out.println("\n------------------------------------");
+                    System.out.println(link.text());
+                    System.out.println(url + link.attr("href"));
+                    System.out.println(e.getMessage());
+                    System.out.println("------------------------------------\n");
+                }
+            });
+        }
+        return list;
     }
-}
+
+    public static MembersModel getMemberCharacter(String ur) throws IOException {
+        // Cria instâncias de membros e listas
+        HashMap<String, Object> objeto = new HashMap<>();
+        List<CharacterModel> characterModelList = new ArrayList<>();
+
+        // Obtém o documento da URL fornecida
+        Document doc = Jsoup.connect(ur).get();
+
+        // Obtém o nome da casa
+        String houseName = doc.selectFirst(".page-header__title").text();
+        objeto.put("name", houseName);
+
+        // Seleciona os links dos membros
+        Elements links = doc.select(".category-page__member-link");
+
+        // Itera sobre os links de membros e processa cada um
+        for (Element link : links) {
+            String memberUrl = url + link.attr("href");
+            try {
+                Document docChar = Jsoup.connect(memberUrl).get();
+                Elements datas = docChar.select("div .pi-item .pi-data");
+
+                // Cria um mapa para armazenar os dados do personagem
+                Map<String, Object> datasCharacter = new HashMap<>();
+                datasCharacter.put("Image", docChar.select(".pi-image-thumbnail").attr("src"));
+                datasCharacter.put("Name", docChar.selectFirst(".page-header__title").text()); // Nome do personagem
+
+                // Processa os dados do personagem
+                for (Element data : datas) {
+                    String label = data.select(".pi-data-label").text();
+                    String value = data.select("div .pi-data-value").text();
+                    if (label.equals("Born")) {
+                        datasCharacter.put("Born", getBorn(data));
+                    } else if (label.equals("Died")) {
+                        datasCharacter.put("Died", getDied(data));
+                    } else {
+                        datasCharacter.put(label, value);
+                    }
+                }
+                // Cria e adiciona o CharacterModel à lista
+                CharacterModel characterModel = new CharacterModel();
+                characterModel.fromMap(datasCharacter);
+                characterModelList.add(characterModel);
+
+            } catch (Exception e) {
+                System.out.println("\n------------------------------------");
+                System.out.println(link.text());
+                System.out.println(url + link.attr("href"));
+                System.out.println(e.getMessage());
+                System.out.println("------------------------------------\n");
+            }
+        }
+
+        objeto.put("members", characterModelList);
+
+        MembersModel membersModel = new MembersModel();
+        membersModel.fromMap(objeto);
+
+        return membersModel;
+    }
+
+
+    private static void formatarElementos(String nome, String element, Element data, String label, Map<String, Object> datasHouse) {
+        // cria objetos para melhorar a formataçao dos elementos
+        if (label.equals(element)) {
+            Elements dados = data.select("div.pi-data-value.pi-font a");
+            List<GeralModel> geralModel = new ArrayList<>();
+
+            dados.forEach(dado -> {
+                // cria um objeto para cada casa
+                GeralModel vm = new GeralModel();
+                vm.setName(dado.text());
+                vm.setLabel(label);
+                geralModel.add(vm);
+            });
+            // Adiciona a lista de items ao mapa
+            datasHouse.put(nome, geralModel);
+        } else {
+            // Adiciona outros dados ao mapa
+            String value = data.select("div.pi-data-value").text();
+            datasHouse.put(label, value);
+        }
+    }
 }

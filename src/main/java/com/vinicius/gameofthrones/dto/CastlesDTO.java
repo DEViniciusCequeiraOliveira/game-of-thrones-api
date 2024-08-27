@@ -3,7 +3,7 @@ package com.vinicius.gameofthrones.dto;
 import com.vinicius.gameofthrones.Models.CastlesDados;
 import com.vinicius.gameofthrones.Models.CastlesModel;
 
-import java.awt.font.TextHitInfo;
+
 import java.util.List;
 
 public record CastlesDTO(

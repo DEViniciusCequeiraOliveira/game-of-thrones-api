@@ -1,16 +1,11 @@
 package com.vinicius.gameofthrones.Models;
 
-import lombok.*;
-
-import java.util.HashMap;
+import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 @Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@ToString
-public class GeralModel {
+public class GeralModel{
     String label;
     String name;
-
 }
