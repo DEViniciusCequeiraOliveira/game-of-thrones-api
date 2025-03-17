@@ -1,8 +1,6 @@
 package com.vinicius.gameofthrones.Controller;
 
-import com.vinicius.gameofthrones.Models.CastlesDados;
 import com.vinicius.gameofthrones.Models.CharacterModel;
-import com.vinicius.gameofthrones.Models.HouseModel;
 import com.vinicius.gameofthrones.Models.MembersModel;
 import com.vinicius.gameofthrones.Repository.CastlesRepository;
 import com.vinicius.gameofthrones.Repository.CharacterRepository;
