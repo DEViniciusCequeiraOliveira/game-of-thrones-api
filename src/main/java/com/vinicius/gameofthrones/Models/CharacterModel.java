@@ -42,7 +42,7 @@ public class CharacterModel {
         this.born = (BornModel) datasCharacter.get("Born");
         this.died = (DiedModel) datasCharacter.get("Died");
         this.allegiance = ScrapingUtil.removeAscString((String) datasCharacter.get("Allegiance"));
-        this.allegiance = ScrapingUtil.removeAscString((String) datasCharacter.get("House(s)"));
+        this.house = ScrapingUtil.removeAscString((String) datasCharacter.get("House(s)"));
         this.title = ScrapingUtil.removeAscString((String) datasCharacter.get("Title(s)"));
         this.culture = ScrapingUtil.removeAscString((String) datasCharacter.get("Culture"));
         this.father = ScrapingUtil.removeAscString((String) datasCharacter.get("Father"));

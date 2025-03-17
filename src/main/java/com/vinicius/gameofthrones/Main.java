@@ -1,7 +1,5 @@
 package com.vinicius.gameofthrones;
 
-import com.vinicius.gameofthrones.Util.ScrapingUtil;
-
 import java.io.IOException;
 
 

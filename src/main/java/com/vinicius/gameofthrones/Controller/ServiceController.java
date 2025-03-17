@@ -37,16 +37,16 @@ public class ServiceController {
         characterRepository.insert(characters);
 
         System.out.println("characters ok");
-
-        List<HouseModel> houses = ScrapingUtil.getHouse();
-        houseRepository.insert(houses);
-
-        System.out.println("houses ok");
-
-        List<CastlesDados> castles = ScrapingUtil.getCastles();
-        castlesRepository.insert(castles);
-
-        System.out.println("castles ok");
+//
+//        List<HouseModel> houses = ScrapingUtil.getHouse();
+//        houseRepository.insert(houses);
+//
+//        System.out.println("houses ok");
+//
+//        List<CastlesDados> castles = ScrapingUtil.getCastles();
+//        castlesRepository.insert(castles);
+//
+//        System.out.println("castles ok");
 
         List<MembersModel> members = ScrapingUtil.processeLink(individualsUrl);
         membeRepository.insert(members);
