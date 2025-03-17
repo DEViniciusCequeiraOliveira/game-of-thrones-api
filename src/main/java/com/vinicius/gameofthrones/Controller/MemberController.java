@@ -16,32 +16,43 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/member")
 public class MemberController {
+
     @Autowired
     MemberRepository memberRepository;
     @Autowired
     CharacterRepository characterRepository;
 
 
-    @GetMapping("/member/house")
+    @GetMapping("/house")
     public Page<MemberHouseDTO> getMemberHouse(Pageable pageable) {
         return memberRepository.findAll(pageable).map(MemberHouseDTO::new);
     }
 
-    @GetMapping("/member")
+    @GetMapping()
     public Page<MemberDTO> getMember(Pageable pageable) {
         return characterRepository.findAll(pageable).map(MemberDTO::new);
     }
 
-    @GetMapping("/id{name}")
-    public MemberDTO getMemberById(@RequestParam String name) {
+    @GetMapping("/name/{name}")
+    public MemberDTO getMemberByname(@PathVariable String name) {
         return characterRepository.findByNameIgnoreCase(name).map(MemberDTO::new).get();
     }
 
-    @GetMapping("/name{houses}")
-    public List<MemberDTO> getMemberHouseByName(@RequestParam String housesName) {
+    @GetMapping("/house/{housesName}")
+    public List<MemberDTO> getHouseByName(@PathVariable String housesName) {
         return characterRepository.findByHouseIgnoreCase(housesName)
                 .stream()
                 .map(MemberDTO::new)
                 .collect(Collectors.toList());
+    }
+
+    @GetMapping("/name/id")
+    public MemberDTO getMemberById(@RequestParam String id) {
+        return characterRepository.findById(id).map(MemberDTO::new).get();
+    }
+
+    @GetMapping("/house/id")
+    public MemberHouseDTO getMemberHouseByName(@RequestParam String id) {
+        return memberRepository.findById(id).map(MemberHouseDTO::new).get();
     }
 }
