@@ -1,4 +1,4 @@
-package com.vinicius.gameofthrones.Controller;
+package com.vinicius.gameofthrones.dto;
 
 import com.vinicius.gameofthrones.Models.CharacterModel;
 import com.vinicius.gameofthrones.Models.MembersModel;

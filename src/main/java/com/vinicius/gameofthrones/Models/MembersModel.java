@@ -19,6 +19,7 @@ public class MembersModel {
     private String name;
     private List<CharacterModel> members;
 
+
     public void fromMap(HashMap<String, Object> dados) {
         this.name = (String) dados.get("name");
         this.members = (List<CharacterModel>) dados.get("members");

@@ -1,11 +1,11 @@
 package com.vinicius.gameofthrones.Controller;
 
-import com.vinicius.gameofthrones.Repository.CastlesRepository;
 import com.vinicius.gameofthrones.Service.CastlesService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -18,13 +18,25 @@ public class CastlesController {
 
     @GetMapping("/region")
     public ResponseEntity<?> getRegionCastles(Pageable page) {
-        var castles = castlesService.getCastlesRegion();
+        var castles = castlesService.getCastlesRegion(page);
+        return ResponseEntity.ok().body(castles);
+    }
+
+    @GetMapping("/region/id/{id}")
+    public ResponseEntity<?> getRegionCastlesId(@PathVariable String id) {
+        var castles = castlesService.getCastlesRegionId(id);
         return ResponseEntity.ok().body(castles);
     }
 
     @GetMapping
-    public ResponseEntity<?> getCastles(Pageable page) {
+    public ResponseEntity<?> getCastles() {
         var castles = castlesService.getCastles();
+        return ResponseEntity.ok().body(castles);
+    }
+
+    @GetMapping("id/{name}")
+    public ResponseEntity<?> getCastlesByName(@PathVariable String name) {
+        var castles = castlesService.getCastlesName(name);
         return ResponseEntity.ok().body(castles);
     }
 }

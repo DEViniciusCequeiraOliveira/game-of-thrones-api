@@ -16,6 +16,7 @@ public class CharacterDTO {
     String title;
     String culture;
     String father;
+    String house;
     String mother;
     String sibling;
     String series;
@@ -35,6 +36,7 @@ public class CharacterDTO {
         this.died = new DiedModelDTO(character.getDied());
         this.allegiance = character.getAllegiance();
         this.title = character.getTitle();
+        this.house = character.getHouse();
         this.culture = character.getCulture();
         this.father = character.getFather();
         this.mother = character.getMother();
