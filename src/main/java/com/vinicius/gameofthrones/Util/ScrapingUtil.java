@@ -31,7 +31,7 @@ public class ScrapingUtil {
         return "";
     }
 
-    public static List<CharacterModel> getCharacter() throws IOException {
+    public List<CharacterModel> getCharacter() throws IOException {
         try {
             List<CharacterModel> characters = new ArrayList<>();
             String currentUrl = urlCharacters;
@@ -180,7 +180,7 @@ public class ScrapingUtil {
         return locations;
     }
 
-    public static List<HouseModel> getHouse() throws IOException {
+    public List<HouseModel> getHouse() throws IOException {
         List<HouseModel> houses = new ArrayList<>();
         Document doc = Jsoup.connect(urlHouses).get();
 
@@ -226,7 +226,7 @@ public class ScrapingUtil {
 
     }
 
-    public static List<CastlesDados> getCastles() throws IOException {
+    public List<CastlesDados> getCastles() throws IOException {
         List<CastlesDados> castlesList = new ArrayList<>();
         Document doc = Jsoup.connect(urlCastles).get();
 
@@ -280,7 +280,10 @@ public class ScrapingUtil {
         });
         return castlesList;
     }
-
+    public List<MembersModel> getMember() throws IOException {
+        var link = "https://gameofthrones.fandom.com/wiki/Category:Individuals_by_affiliation";
+        return processeLink(link);
+    }
     public static List<MembersModel> processeLink(String urlLocation) throws IOException {
 
         Document doc = Jsoup.connect(urlLocation).get();
