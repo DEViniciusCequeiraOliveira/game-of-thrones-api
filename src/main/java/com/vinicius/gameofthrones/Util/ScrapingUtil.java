@@ -11,15 +11,12 @@ import java.util.*;
 import java.util.regex.Pattern;
 
 public class ScrapingUtil {
+
     final static String urlCastles = "https://gameofthrones.fandom.com/wiki/Category:Castles";
     final static String urlCharacters = "https://gameofthrones.fandom.com/wiki/Category:Individuals_appearing_in_Game_of_Thrones";
     final static String urlHouses = "https://gameofthrones.fandom.com/wiki/Category:Great_Houses";
-    final static String urlLocation = "https://gameofthrones.fandom.com/wiki/Category:Continents";
     final static String currentUrl = "https://gameofthrones.fandom.com";
     final static String url = "https://gameofthrones.fandom.com/";
-    private static Set<String> processedLinks = new HashSet<>();
-    private static Set<String> locationList = new HashSet<>();
-    private static final List<MembersModel> list = new ArrayList<>();
 
     final static List<String> LOCATION_STRINGS = new ArrayList<>(
             Arrays.asList("Category:Bay of Seals", "Category:Skagos", "Category:Gift"));
@@ -129,6 +126,7 @@ public class ScrapingUtil {
     }
 
     private static DiedModel getDied(Element data) {
+        Set<String> locationList = new HashSet<>();
         Elements diedElements = data.select("div .pi-data-value").get(0).children().select("a");
         Map<String, String> diedCharacter = new HashMap<>();
         diedCharacter.put("Timeline", diedElements.select("[title=\"Timeline\"]").text());
@@ -142,43 +140,6 @@ public class ScrapingUtil {
         return diedModel;
     }
 
-    public static Set<String> getLocation(String urlLocation) throws IOException {
-        Set<String> locations = new HashSet<>();
-        Queue<String> queue = new LinkedList<>();
-        queue.add(urlLocation);
-
-        while (!queue.isEmpty()) {
-            String currentUrl = queue.poll();
-            if (processedLinks.contains(currentUrl)) {
-                continue;
-            }
-            processedLinks.add(currentUrl);
-            try {
-                Document doc = Jsoup.connect(currentUrl).ignoreHttpErrors(true).get();
-                Elements links = doc.select(".category-page__member-link");
-
-                for (Element link : links) {
-                    String linkText = link.text();
-                    String linkUrl = url + link.attr("href");
-                    System.out.println(linkUrl);
-
-                    if (linkText.contains("Category") && !linkText.contains("culture")) {
-                        if (!LOCATION_STRINGS.contains(linkText)) {
-                            queue.add(linkUrl);
-                        } else {
-                            locations.add(linkText.replace("Category:", ""));
-                        }
-                    } else if (!linkText.contains("Category")) {
-                        locations.add(linkText);
-                    }
-                }
-            } catch (IOException e) {
-                System.err.println("Failed to fetch URL: " + currentUrl);
-            }
-        }
-
-        return locations;
-    }
 
     public List<HouseModel> getHouse() throws IOException {
         List<HouseModel> houses = new ArrayList<>();
@@ -280,11 +241,14 @@ public class ScrapingUtil {
         });
         return castlesList;
     }
+
     public List<MembersModel> getMember() throws IOException {
         var link = "https://gameofthrones.fandom.com/wiki/Category:Individuals_by_affiliation";
         return processeLink(link);
     }
+
     public static List<MembersModel> processeLink(String urlLocation) throws IOException {
+        List<MembersModel> list = new ArrayList<>();
 
         Document doc = Jsoup.connect(urlLocation).get();
         Elements links = doc.select(".category-page__member-link");
@@ -378,7 +342,6 @@ public class ScrapingUtil {
 
 
     private static void formatarElementos(String nome, String element, Element data, String label, Map<String, Object> datasHouse) {
-        // cria objetos para melhorar a formataçao dos elementos
         if (label.equals(element)) {
             Elements dados = data.select("div.pi-data-value.pi-font a");
             List<GeralModel> geralModel = new ArrayList<>();
