@@ -1,6 +1,5 @@
 package com.vinicius.gameofthrones.Service;
 
-import com.vinicius.gameofthrones.Models.MembersModel;
 import com.vinicius.gameofthrones.Repository.MemberRepository;
 import com.vinicius.gameofthrones.dto.MemberHouseDTO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,9 +17,10 @@ public class MemberService {
     }
 
 
-    public MemberHouseDTO getMemberHouseByName(String id) {
+    public MemberHouseDTO getHouseById(String id) {
         return memberRepository.findById(id).map(MemberHouseDTO::new).get();
     }
+
 
 
 }
