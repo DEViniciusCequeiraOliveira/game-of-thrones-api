@@ -17,8 +17,11 @@ public class RestExceptionError {
     }
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 =======
 
 
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 }
