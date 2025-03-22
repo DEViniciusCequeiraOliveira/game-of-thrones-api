@@ -13,15 +13,7 @@ public class RestExceptionError {
 
     @ExceptionHandler(NoSuchElementException.class)
     private ResponseEntity<RestMensageError> optionalEmpty(NoSuchElementException exception) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new RestMensageError(HttpStatus.NOT_FOUND,"Id Not Found"));
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new RestMensageError(HttpStatus.NOT_FOUND, "Id Not Found"));
     }
 
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-=======
-
-
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
 }

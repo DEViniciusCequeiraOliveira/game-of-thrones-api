@@ -48,9 +48,6 @@ public class ServiceUtil {
         houseRepository.insert(util.getHouse());
         castlesRepository.insert(util.getCastles());
         memberRepository.insert(util.getMember());
-<<<<<<< Updated upstream
 
-=======
->>>>>>> Stashed changes
     }
 }
