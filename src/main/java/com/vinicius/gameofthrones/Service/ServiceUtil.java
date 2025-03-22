@@ -41,4 +41,12 @@ public class ServiceUtil {
     public void saveCharacter() throws IOException {
         characterRepository.insert(util.getCharacter());
     }
+
+    public void saveAll() throws IOException {
+        characterRepository.insert(util.getCharacter());
+        houseRepository.insert(util.getHouse());
+        castlesRepository.insert(util.getCastles());
+        memberRepository.insert(util.getMember());
+
+    }
 }

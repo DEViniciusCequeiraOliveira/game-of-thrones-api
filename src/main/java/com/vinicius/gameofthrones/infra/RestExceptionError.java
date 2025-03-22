@@ -16,4 +16,9 @@ public class RestExceptionError {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new RestMensageError(HttpStatus.NOT_FOUND,"Id Not Found"));
     }
 
+<<<<<<< Updated upstream
+=======
+
+
+>>>>>>> Stashed changes
 }
