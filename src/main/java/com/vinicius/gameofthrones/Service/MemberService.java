@@ -16,6 +16,9 @@ public class MemberService {
     public Page<MemberHouseDTO> getMemberHouse(Pageable pageable) {
         return memberRepository.findAll(pageable).map(MemberHouseDTO::new);
     }
+    public MembersModel saveMember(MembersModel member) {
+        return memberRepository.save(member);
+    }
 
 
     public MemberHouseDTO getMemberHouseByName(String id) {

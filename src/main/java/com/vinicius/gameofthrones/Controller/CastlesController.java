@@ -14,10 +14,9 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/castles")
-public class CastlesController {
+public class CastlesController { 
     @Autowired
     CastlesService castlesService;
-
 
     @GetMapping("/region")
     public ResponseEntity<?> getRegionCastles(Pageable page) {
@@ -25,7 +24,7 @@ public class CastlesController {
         return ResponseEntity.ok().body(castles);
     }
 
-    @GetMapping("/region/id/{id}")
+    @GetMapping("/region/{id}")
     public ResponseEntity<?> getRegionCastlesId(@PathVariable String id) {
         var castles = castlesService.getCastlesRegionId(id);
         return ResponseEntity.ok().body(castles);
@@ -36,7 +35,11 @@ public class CastlesController {
         var castles = castlesService.getCastles();
         return ResponseEntity.ok().body(castles);
     }
-
+    //@GetMapping
+//    public ResponseEntity<List<InstitutionDTO>> getCastlesById() {
+//        var castles = castlesService.getCastlesId();
+//        return ResponseEntity.ok().body(castles);
+//    }
     @GetMapping("id/{name}")
     public ResponseEntity<?> getCastlesByName(@PathVariable String name) {
         var castles = castlesService.getCastlesName(name);

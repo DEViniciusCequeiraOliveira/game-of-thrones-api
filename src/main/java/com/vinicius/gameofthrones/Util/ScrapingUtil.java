@@ -15,6 +15,7 @@ public class ScrapingUtil {
     final static String urlCastles = "https://gameofthrones.fandom.com/wiki/Category:Castles";
     final static String urlCharacters = "https://gameofthrones.fandom.com/wiki/Category:Individuals_appearing_in_Game_of_Thrones";
     final static String urlHouses = "https://gameofthrones.fandom.com/wiki/Category:Great_Houses";
+    final static String urlGameOfThrones = "https://gameofthrones.fandom.com/wiki/Game_of_Thrones";
     final static String currentUrl = "https://gameofthrones.fandom.com";
     final static String url = "https://gameofthrones.fandom.com/";
 
@@ -361,4 +362,13 @@ public class ScrapingUtil {
             datasHouse.put(label, value);
         }
     }
+
+    public String GameOfThrones(String location) throws IOException {
+        Document doc = Jsoup.connect(urlGameOfThrones).get();
+
+        Elements links = doc.select("portable-infobox.pi-background.pi-border-color.pi-theme-Westeros.pi-theme-Thrones.pi-layout-default type-episode");
+
+        return links.toString();
+    }
+
 }

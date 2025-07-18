@@ -28,16 +28,7 @@ public class CastlesService {
         return castlesRepository.findAll().stream()
                 .flatMap(dados -> dados.getCastles().stream())
                 .filter(dados -> !dados.getName().contains("Category"))
-                .map(castles -> new InstitutionDTO(
-                        castles.getName(),
-                        castles.getType(),
-                        castles.getLocation(),
-                        castles.getRules(),
-                        castles.getReligion(),
-                        castles.getPlaceNotes(),
-                        castles.getFounded(),
-                        castles.getStatus())
-                )
+                .map(InstitutionDTO::new)
                 .collect(Collectors.toList());
     }
     public InstitutionDTO getCastlesName(String name) {

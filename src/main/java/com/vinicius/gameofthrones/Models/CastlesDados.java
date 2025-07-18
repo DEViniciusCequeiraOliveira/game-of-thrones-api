@@ -20,9 +20,6 @@ public class CastlesDados{
     String name;
     List<CastlesModel> castles;
 
-    public CastlesDados(CastlesDados dados) {
-    }
-
     public void fromMap(Map<String,Object> dados) {
         this.name = (String) dados.get("name");
         this.castles =(List<CastlesModel>)  dados.get("castles");

@@ -11,5 +11,7 @@ import java.util.List;
 import java.util.Optional;
 @Repository
 public interface CastlesRepository extends MongoRepository<CastlesDados,String> {
-
+    List<CastlesDados> findAllBy(Pageable pageable);
+     @Query("{ 'nome' : ?0 }")
+     List<CastlesDados> findByNomeLike(String nome);
 }
