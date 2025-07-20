@@ -4,12 +4,15 @@ import com.vinicius.gameofthrones.Util.ScrapingUtil;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Map;
 
 @ToString
 @Getter
 @Setter
+@Document(collection = "castles")
+
 public class CastlesModel {
 
     String name;

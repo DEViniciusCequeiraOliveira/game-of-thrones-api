@@ -1,18 +1,27 @@
 package com.vinicius.gameofthrones.Models;
 
+import com.vinicius.gameofthrones.Util.CreatorModel;
+import com.vinicius.gameofthrones.Util.ProducersModel;
+import jakarta.annotation.Generated;
 import lombok.*;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
+import java.util.Map;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
+@Document(collection = "gameofthrones")
 public class GameOfThronesModel {
+    @Id
     private String _id;
+
     private String image;
     private String name;
     private String format;
-    private List<String> season;
+    private List<SeasonModel> season;
     private String episodes;
     private String premiere;
     private String finale;
@@ -20,9 +29,28 @@ public class GameOfThronesModel {
     private String premiereDate;
     private String finaleDate;
     private String runtime;
-    private List<String> starring;
-    private List<String> creators;
-    private List<String> producers;
-    private List<String> screenplay;
-    private List<String> directors;
+    private List<StarringModel> starring;
+    private List<CreatorModel> creators;
+    private List<ProducersModel> producers;
+    private List<WritersModel> screenplay;
+    private List<DirectorModel> directors;
+
+    public GameOfThronesModel(Map<String, Object> dados) {
+        this.image = (String) dados.get("image");
+        this.name = "Game of Thrones";
+        this.format = (String) dados.get("Format");
+        this.season = (List<SeasonModel>) dados.get("Seasons");
+        this.episodes = (String) dados.get("Episodes");
+        this.premiere = (String) dados.get("Premiere");
+        this.finale = (String) dados.get("Finale");
+        this.network = (String) dados.get("Network");
+        this.premiereDate = (String) dados.get("First");
+        this.finaleDate = (String) dados.get("Final");
+        this.runtime = (String) dados.get("Runtime");
+        this.starring = (List<StarringModel>) dados.get("Starring");
+        this.creators = (List<CreatorModel>) dados.get("Creator");
+        this.producers = (List<ProducersModel>) dados.get("Producers");
+        this.screenplay = (List<WritersModel>) dados.get("Writers");
+        this.directors = (List<DirectorModel>) dados.get("Directors");
+    }
 }

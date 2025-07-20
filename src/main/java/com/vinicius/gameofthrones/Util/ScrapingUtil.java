@@ -5,26 +5,30 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.*;
 import java.util.regex.Pattern;
 
+@Component
 public class ScrapingUtil {
 
     final static String urlCastles = "https://gameofthrones.fandom.com/wiki/Category:Castles";
     final static String urlCharacters = "https://gameofthrones.fandom.com/wiki/Category:Individuals_appearing_in_Game_of_Thrones";
     final static String urlHouses = "https://gameofthrones.fandom.com/wiki/Category:Great_Houses";
-    final static String urlGameOfThrones = "https://gameofthrones.fandom.com/wiki/Game_of_Thrones";
+    final String urlGameOfThrones = "https://gameofthrones.fandom.com/wiki/Game_of_Thrones";
     final static String currentUrl = "https://gameofthrones.fandom.com";
     final static String url = "https://gameofthrones.fandom.com/";
 
-    final static List<String> LOCATION_STRINGS = new ArrayList<>(
-            Arrays.asList("Category:Bay of Seals", "Category:Skagos", "Category:Gift"));
+    @Autowired
+    private IGameOfThrones modelListBuilder;
+
 
     public static String removeAscString(String texto) {
         if (texto != null) {
-            return texto.replaceAll("\\[\\d+\\]", "").trim().replaceAll("[\\[\\]{}\"]", "").trim();
+            return texto.replaceAll("\\[\\d+]", "").trim().replaceAll("[\\[\\]{}\"]", "").trim();
         }
         return "";
     }
@@ -75,8 +79,7 @@ public class ScrapingUtil {
                 // Verifica se existe um botão "Próxima Página" para continuar a navegação
                 Element nextPageButton = doc.selectFirst(".category-page__pagination-next");
                 if (nextPageButton != null) {
-                    String nextPageHref = nextPageButton.attr("href");
-                    currentUrl = nextPageHref;
+                    currentUrl = nextPageButton.attr("href");
                     System.out.println(currentUrl);
                 } else {
                     currentUrl = null;
@@ -92,7 +95,6 @@ public class ScrapingUtil {
         return null;
     }
 
-    // essa merda funciona mas não mepeia os dados 100%
     private static BornModel getBorn(Element data) {
 
         Elements bornElements = data.select("div.pi-data-value.pi-font a");
@@ -363,12 +365,68 @@ public class ScrapingUtil {
         }
     }
 
-    public String GameOfThrones(String location) throws IOException {
+    public GameOfThronesModel GameOfThrones() throws IOException {
+        Map<String, Object> modelMap = new HashMap<>();
+
+        List<SeasonModel> seasonModel = new ArrayList<>();
+        List<StarringModel> starring = new ArrayList<>();
+        List<CreatorModel> creators = new ArrayList<>();
+        List<ProducersModel> producers = new ArrayList<>();
+        List<WritersModel> writers = new ArrayList<>();
+        List<DirectorModel> directors = new ArrayList<>();
+
+        var elemento = "div.pi-item.pi-data.pi-item-spacing.pi-border-color";
+
         Document doc = Jsoup.connect(urlGameOfThrones).get();
+        Elements elements = doc.select("aside.portable-infobox.pi-background.pi-border-color.pi-theme-Westeros.pi-theme-Thrones.pi-layout-default.type-episode");
 
-        Elements links = doc.select("portable-infobox.pi-background.pi-border-color.pi-theme-Westeros.pi-theme-Thrones.pi-layout-default type-episode");
-
-        return links.toString();
+        elements.forEach(element -> {
+            var sesson = element.select("section.pi-item.pi-group.pi-border-color");
+            sesson.forEach(session -> {
+                var dataSource = session.select(elemento);
+                dataSource.forEach(dataValue -> {
+                    var data = dataValue.attr("data-source");
+                    //System.out.println(data);
+                    if (data.equals("Seasons")) {
+                        var seasonList = makeListSeason(seasonModel, dataValue);
+                        modelMap.put(data, seasonList);
+                    } else if (data.equals("Starring")) {
+                        var starringList = modelListBuilder.makeList(starring, dataValue, StarringModel::new);
+                        modelMap.put(data, starringList);
+                    } else if (data.equals("Creator")) {
+                        modelListBuilder.makeList(creators, dataValue, CreatorModel::new);
+                        modelMap.put(data, creators);
+                    } else if (data.equals("Producers")) {
+                        modelListBuilder.makeList(producers, dataValue, ProducersModel::new);
+                        modelMap.put(data, producers);
+                    } else if (data.equals("Writers")) {
+                        modelListBuilder.makeList(writers, dataValue, WritersModel::new);
+                        modelMap.put(data, writers);
+                    } else if (data.equals("Directors")) {
+                        modelListBuilder.makeList(directors, dataValue, DirectorModel::new);
+                        modelMap.put(data, directors);
+                    } else {
+                        System.out.println("____________________");
+                        var value = dataValue.select("div.pi-data-value.pi-font").text();
+                        System.out.println(data +" "+ value);
+                        modelMap.put(data, removeAscString(value));
+                    }
+                });
+            });
+        });
+        return new GameOfThronesModel(modelMap);
     }
 
+    public List<SeasonModel> makeListSeason(List<SeasonModel> dados, Element dataValue) {
+        var value = dataValue.select("div.pi-data-value.pi-font").select("a");
+        Pattern pattern = Pattern.compile("\\[\\d+\\]");
+
+        value.forEach(seasonValue -> {
+            if (pattern.matcher(seasonValue.text()).find()) {
+                return;
+            } else
+                dados.add(new SeasonModel(seasonValue.text(), seasonValue.attr("title"), seasonValue.attr("href")));
+        });
+        return dados;
+    }
 }

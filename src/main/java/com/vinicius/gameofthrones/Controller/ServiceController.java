@@ -46,4 +46,9 @@ public class ServiceController {
         service.saveCastles();
         return ResponseEntity.ok("Salvo com sucesso");
     }
+    @GetMapping(value = "/carrega-game")
+    public ResponseEntity<?> carregarGot() throws IOException {
+        service.saveGameOfThrones();
+        return ResponseEntity.ok("Salvo com sucesso");
+    }
 }
