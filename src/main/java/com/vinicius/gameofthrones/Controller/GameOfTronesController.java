@@ -19,4 +19,8 @@ public class GameOfTronesController {
     public GameOfThronesModel getService() throws IOException {
         return service.getGameOfThrones();
     }
+    @GetMapping("/delete")
+    public String delete() throws IOException {
+        return service.delete();
+    }
 }

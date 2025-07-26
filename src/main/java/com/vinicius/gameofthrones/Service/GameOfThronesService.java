@@ -2,7 +2,6 @@ package com.vinicius.gameofthrones.Service;
 
 import com.vinicius.gameofthrones.Models.GameOfThronesModel;
 import com.vinicius.gameofthrones.Repository.GameOfThronesRepository;
-import com.vinicius.gameofthrones.Util.ScrapingUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,5 +14,10 @@ public class GameOfThronesService {
 
     public GameOfThronesModel getGameOfThrones() throws IOException {
         return repository.findAll().get(0);
+    }
+
+    public String delete() {
+        repository.deleteAll();
+        return "Deletado com sucesso";
     }
 }

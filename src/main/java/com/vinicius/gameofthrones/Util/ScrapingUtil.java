@@ -1,11 +1,15 @@
 package com.vinicius.gameofthrones.Util;
 
 import com.vinicius.gameofthrones.Models.*;
+import com.vinicius.gameofthrones.Models.Season.SeasonPreview;
+import com.vinicius.gameofthrones.Service.DataProcessor;
+import com.vinicius.gameofthrones.Service.IDataProcessor;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -25,6 +29,8 @@ public class ScrapingUtil {
     @Autowired
     private IGameOfThrones modelListBuilder;
 
+    @Autowired
+    private IDataProcessor processor;
 
     public static String removeAscString(String texto) {
         if (texto != null) {
@@ -368,56 +374,54 @@ public class ScrapingUtil {
     public GameOfThronesModel GameOfThrones() throws IOException {
         Map<String, Object> modelMap = new HashMap<>();
 
-        List<SeasonModel> seasonModel = new ArrayList<>();
+        List<SeasonPreview> seasonPreview = new ArrayList<>();
         List<StarringModel> starring = new ArrayList<>();
         List<CreatorModel> creators = new ArrayList<>();
         List<ProducersModel> producers = new ArrayList<>();
         List<WritersModel> writers = new ArrayList<>();
         List<DirectorModel> directors = new ArrayList<>();
 
+        var headers = List.of("Seasons","Starring","Creator","Producers","Writers","Directors");
+
         var elemento = "div.pi-item.pi-data.pi-item-spacing.pi-border-color";
 
         Document doc = Jsoup.connect(urlGameOfThrones).get();
         Elements elements = doc.select("aside.portable-infobox.pi-background.pi-border-color.pi-theme-Westeros.pi-theme-Thrones.pi-layout-default.type-episode");
 
+        processor.register("Seasons",dv -> makeListSeason(seasonPreview,dv));
+        processor.register("Starring",dv -> modelListBuilder.makeList(starring,dv,StarringModel::new));
+        processor.register("Creator",dv -> modelListBuilder.makeList(creators,dv,CreatorModel::new));
+        processor.register("Producers",dv -> modelListBuilder.makeList(producers,dv,ProducersModel::new));
+        processor.register("Writers",dv -> modelListBuilder.makeList(writers,dv,WritersModel::new));
+        processor.register("Directors",dv -> modelListBuilder.makeList(directors,dv,DirectorModel::new));
+
         elements.forEach(element -> {
             var sesson = element.select("section.pi-item.pi-group.pi-border-color");
-            sesson.forEach(session -> {
+            sesson.select("section.pi-item.pi-group.pi-border-color").forEach(session -> {
                 var dataSource = session.select(elemento);
                 dataSource.forEach(dataValue -> {
+                    System.out.println(seasonPreview);
                     var data = dataValue.attr("data-source");
-                    //System.out.println(data);
-                    if (data.equals("Seasons")) {
-                        var seasonList = makeListSeason(seasonModel, dataValue);
-                        modelMap.put(data, seasonList);
-                    } else if (data.equals("Starring")) {
-                        var starringList = modelListBuilder.makeList(starring, dataValue, StarringModel::new);
-                        modelMap.put(data, starringList);
-                    } else if (data.equals("Creator")) {
-                        modelListBuilder.makeList(creators, dataValue, CreatorModel::new);
-                        modelMap.put(data, creators);
-                    } else if (data.equals("Producers")) {
-                        modelListBuilder.makeList(producers, dataValue, ProducersModel::new);
-                        modelMap.put(data, producers);
-                    } else if (data.equals("Writers")) {
-                        modelListBuilder.makeList(writers, dataValue, WritersModel::new);
-                        modelMap.put(data, writers);
-                    } else if (data.equals("Directors")) {
-                        modelListBuilder.makeList(directors, dataValue, DirectorModel::new);
-                        modelMap.put(data, directors);
-                    } else {
+                    System.out.println(data);
+                    if (headers.contains(data)) {
+                        processor.process(data,dataValue,modelMap);
+                    }else {
+                        String value = dataValue.select("div.pi-data-value.pi-font").text();
                         System.out.println("____________________");
-                        var value = dataValue.select("div.pi-data-value.pi-font").text();
-                        System.out.println(data +" "+ value);
+                        System.out.println(data + " " + value);
                         modelMap.put(data, removeAscString(value));
                     }
                 });
             });
         });
+        modelMap.forEach((key, value) -> {
+            System.out.println(key + " => " + value.getClass().getName());
+        });
+
         return new GameOfThronesModel(modelMap);
     }
 
-    public List<SeasonModel> makeListSeason(List<SeasonModel> dados, Element dataValue) {
+    public List<SeasonPreview> makeListSeason(List<SeasonPreview> dados, Element dataValue) {
         var value = dataValue.select("div.pi-data-value.pi-font").select("a");
         Pattern pattern = Pattern.compile("\\[\\d+\\]");
 
@@ -425,7 +429,7 @@ public class ScrapingUtil {
             if (pattern.matcher(seasonValue.text()).find()) {
                 return;
             } else
-                dados.add(new SeasonModel(seasonValue.text(), seasonValue.attr("title"), seasonValue.attr("href")));
+                dados.add(new SeasonPreview(seasonValue.text(), seasonValue.attr("title"), seasonValue.attr("href")));
         });
         return dados;
     }

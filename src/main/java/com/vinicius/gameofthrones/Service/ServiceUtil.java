@@ -23,7 +23,8 @@ public class ServiceUtil {
 
     @Autowired
     private CharacterRepository characterRepository;
-@Autowired
+
+    @Autowired
     private GameOfThronesRepository gameOfThronesRepository;
 
     public void saveMember() throws IOException {
@@ -41,6 +42,7 @@ public class ServiceUtil {
     public void saveCharacter() throws IOException {
         characterRepository.insert(util.getCharacter());
     }
+
     public void saveGameOfThrones() throws IOException {
         gameOfThronesRepository.insert(util.GameOfThrones());
     }

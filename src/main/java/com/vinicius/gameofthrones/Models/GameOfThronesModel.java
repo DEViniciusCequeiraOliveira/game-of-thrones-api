@@ -1,8 +1,8 @@
 package com.vinicius.gameofthrones.Models;
 
+import com.vinicius.gameofthrones.Models.Season.SeasonPreview;
 import com.vinicius.gameofthrones.Util.CreatorModel;
 import com.vinicius.gameofthrones.Util.ProducersModel;
-import jakarta.annotation.Generated;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -21,7 +21,7 @@ public class GameOfThronesModel {
     private String image;
     private String name;
     private String format;
-    private List<SeasonModel> season;
+    private List<SeasonPreview> season;
     private String episodes;
     private String premiere;
     private String finale;
@@ -39,7 +39,7 @@ public class GameOfThronesModel {
         this.image = (String) dados.get("image");
         this.name = "Game of Thrones";
         this.format = (String) dados.get("Format");
-        this.season = (List<SeasonModel>) dados.get("Seasons");
+        this.season = (List<SeasonPreview>) dados.get("Seasons");
         this.episodes = (String) dados.get("Episodes");
         this.premiere = (String) dados.get("Premiere");
         this.finale = (String) dados.get("Finale");
