@@ -51,4 +51,9 @@ public class ServiceController {
         service.saveGameOfThrones();
         return ResponseEntity.ok("Salvo com sucesso");
     }
+    @GetMapping(value = "/carrega-season")
+    public ResponseEntity<?> carregarSeason() throws IOException {
+        service.saveSeason();
+        return ResponseEntity.ok("Salvo com sucesso");
+    }
 }

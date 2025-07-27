@@ -1,15 +1,15 @@
 package com.vinicius.gameofthrones.Util;
 
 import com.vinicius.gameofthrones.Models.*;
+import com.vinicius.gameofthrones.Models.Episode.EpisodePreview;
+import com.vinicius.gameofthrones.Models.Season.SeasonModel;
 import com.vinicius.gameofthrones.Models.Season.SeasonPreview;
-import com.vinicius.gameofthrones.Service.DataProcessor;
 import com.vinicius.gameofthrones.Service.IDataProcessor;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -381,19 +381,19 @@ public class ScrapingUtil {
         List<WritersModel> writers = new ArrayList<>();
         List<DirectorModel> directors = new ArrayList<>();
 
-        var headers = List.of("Seasons","Starring","Creator","Producers","Writers","Directors");
+        var headers = List.of("Seasons", "Starring", "Creator", "Producers", "Writers", "Directors");
 
         var elemento = "div.pi-item.pi-data.pi-item-spacing.pi-border-color";
 
         Document doc = Jsoup.connect(urlGameOfThrones).get();
         Elements elements = doc.select("aside.portable-infobox.pi-background.pi-border-color.pi-theme-Westeros.pi-theme-Thrones.pi-layout-default.type-episode");
 
-        processor.register("Seasons",dv -> makeListSeason(seasonPreview,dv));
-        processor.register("Starring",dv -> modelListBuilder.makeList(starring,dv,StarringModel::new));
-        processor.register("Creator",dv -> modelListBuilder.makeList(creators,dv,CreatorModel::new));
-        processor.register("Producers",dv -> modelListBuilder.makeList(producers,dv,ProducersModel::new));
-        processor.register("Writers",dv -> modelListBuilder.makeList(writers,dv,WritersModel::new));
-        processor.register("Directors",dv -> modelListBuilder.makeList(directors,dv,DirectorModel::new));
+        processor.register("Seasons", dv -> makeListSeason(seasonPreview, dv));
+        processor.register("Starring", dv -> modelListBuilder.makeList(starring, dv, StarringModel::new));
+        processor.register("Creator", dv -> modelListBuilder.makeList(creators, dv, CreatorModel::new));
+        processor.register("Producers", dv -> modelListBuilder.makeList(producers, dv, ProducersModel::new));
+        processor.register("Writers", dv -> modelListBuilder.makeList(writers, dv, WritersModel::new));
+        processor.register("Directors", dv -> modelListBuilder.makeList(directors, dv, DirectorModel::new));
 
         elements.forEach(element -> {
             var sesson = element.select("section.pi-item.pi-group.pi-border-color");
@@ -404,8 +404,8 @@ public class ScrapingUtil {
                     var data = dataValue.attr("data-source");
                     System.out.println(data);
                     if (headers.contains(data)) {
-                        processor.process(data,dataValue,modelMap);
-                    }else {
+                        processor.process(data, dataValue, modelMap);
+                    } else {
                         String value = dataValue.select("div.pi-data-value.pi-font").text();
                         System.out.println("____________________");
                         System.out.println(data + " " + value);
@@ -413,9 +413,6 @@ public class ScrapingUtil {
                     }
                 });
             });
-        });
-        modelMap.forEach((key, value) -> {
-            System.out.println(key + " => " + value.getClass().getName());
         });
 
         return new GameOfThronesModel(modelMap);
@@ -432,5 +429,74 @@ public class ScrapingUtil {
                 dados.add(new SeasonPreview(seasonValue.text(), seasonValue.attr("title"), seasonValue.attr("href")));
         });
         return dados;
+    }
+
+    public SeasonModel season(String link) throws IOException {
+
+        Map<String, Object> modelMap = new HashMap<>();
+
+        List<ProducersModel> producers = new ArrayList<>();
+        List<WritersModel> writers = new ArrayList<>();
+        List<DirectorModel> directors = new ArrayList<>();
+        List<StarringModel> starring = new ArrayList<>();
+        List<EpisodePreview> episodes = new ArrayList<>();
+
+        List<String> headers = List.of("Directors", "Writers", "Producers", "Starring");
+
+        processor.register("Producers", dv -> modelListBuilder.makeList(producers, dv, ProducersModel::new));
+        processor.register("Writers", dv -> modelListBuilder.makeList(writers, dv, WritersModel::new));
+        processor.register("Directors", dv -> modelListBuilder.makeList(directors, dv, DirectorModel::new));
+        processor.register("Starring", dv -> modelListBuilder.makeList(starring, dv, StarringModel::new));
+
+
+        var elemento = "div.pi-item.pi-data.pi-item-spacing.pi-border-color";
+
+        Document doc = Jsoup.connect(link).get();
+        Elements elements = doc.select("aside.portable-infobox.pi-background.pi-border-color.pi-theme-Westeros.pi-theme-Thrones.pi-layout-default.type-episode");
+        var titleElement = elements.select("h2.pi-item.pi-item-spacing.pi-title.pi-secondary-background");
+        var titleSerie = titleElement.select("i a").attr("title");
+        var subTitle = titleElement.select("small").text();
+        modelMap.put("Title", titleSerie + ":" + subTitle);
+
+
+        elements.forEach(element -> {
+
+            var image = element.select("figure.pi-item.pi-image").select("a").attr("href");
+            modelMap.put("Image", image);
+            var sections = element.select("div.pi-item.pi-data.pi-item-spacing.pi-border-color");
+            sections.forEach(section -> {
+                var data = section.select(elemento);
+                data.forEach(dataValue -> {
+                    var dataSource = dataValue.attr("data-source");
+
+                    if (headers.contains(dataSource)) {
+                        processor.process(dataSource, dataValue, modelMap);
+                    } else {
+                        String value = dataValue.select("div.pi-data-value.pi-font").text();
+                        System.out.println(dataSource);
+                        modelMap.put(dataSource, removeAscString(value));
+                    }
+                });
+            });
+        });
+        var rows = doc.select("#prettytable");
+        rows.forEach(row -> {
+            row.select("tr").forEach(cell -> {
+                var data = cell.select("td");
+                if (data.size() >= 4) {
+                    var episodeNum = data.get(0).text();
+                    var image = data.get(1).select("a").attr("href");
+                    var title = data.get(2).text();
+                    var href = data.get(2).select("a").attr("href");
+                    var airDate = data.get(3).text();
+
+                    var episode = new EpisodePreview(episodeNum, image, title, href, airDate);
+                    episodes.add(episode);
+                }
+            });
+        });
+        modelMap.put("Episode", episodes);
+
+        return new SeasonModel(modelMap);
     }
 }

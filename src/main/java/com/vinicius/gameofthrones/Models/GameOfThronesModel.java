@@ -1,11 +1,13 @@
 package com.vinicius.gameofthrones.Models;
 
+import com.vinicius.gameofthrones.Models.Season.SeasonModel;
 import com.vinicius.gameofthrones.Models.Season.SeasonPreview;
 import com.vinicius.gameofthrones.Util.CreatorModel;
 import com.vinicius.gameofthrones.Util.ProducersModel;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.hateoas.RepresentationModel;
 
 import java.util.List;
 import java.util.Map;
@@ -14,7 +16,7 @@ import java.util.Map;
 @NoArgsConstructor
 @Data
 @Document(collection = "gameofthrones")
-public class GameOfThronesModel {
+public class GameOfThronesModel extends RepresentationModel<GameOfThronesModel> {
     @Id
     private String _id;
 

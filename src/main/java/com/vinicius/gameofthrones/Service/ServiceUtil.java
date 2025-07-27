@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.List;
 
 @Service
 public class ServiceUtil {
@@ -27,6 +28,9 @@ public class ServiceUtil {
     @Autowired
     private GameOfThronesRepository gameOfThronesRepository;
 
+    @Autowired
+    private SeasonRepository seasonRepository;
+
     public void saveMember() throws IOException {
         memberRepository.insert(util.getMember());
     }
@@ -47,11 +51,27 @@ public class ServiceUtil {
         gameOfThronesRepository.insert(util.GameOfThrones());
     }
 
+    public void saveSeason() throws IOException {
+        List<String> links = List.of("https://gameofthrones.fandom.com/wiki/Game_of_Thrones:_Season_1",
+                "https://gameofthrones.fandom.com/wiki/Game_of_Thrones:_Season_2",
+                "https://gameofthrones.fandom.com/wiki/Game_of_Thrones:_Season_3",
+                "https://gameofthrones.fandom.com/wiki/Game_of_Thrones:_Season_4",
+                "https://gameofthrones.fandom.com/wiki/Game_of_Thrones:_Season_5",
+                "https://gameofthrones.fandom.com/wiki/Game_of_Thrones:_Season_6",
+                "https://gameofthrones.fandom.com/wiki/Game_of_Thrones:_Season_7",
+                "https://gameofthrones.fandom.com/wiki/Game_of_Thrones:_Season_8");
+
+        for (String link : links) {
+            seasonRepository.insert(util.season(link));
+        }
+    }
+
     public void saveAll() throws IOException {
         characterRepository.insert(util.getCharacter());
         houseRepository.insert(util.getHouse());
         castlesRepository.insert(util.getCastles());
         memberRepository.insert(util.getMember());
         saveGameOfThrones();
+        saveSeason();
     }
 }
