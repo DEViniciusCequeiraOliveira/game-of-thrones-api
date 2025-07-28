@@ -10,7 +10,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.hateoas.RepresentationModel;
 
 import java.util.List;
 import java.util.Map;
@@ -20,7 +19,7 @@ import java.util.Map;
 @Data
 
 @Document
-public class SeasonModel extends RepresentationModel<SeasonModel> {
+public class SeasonModel {
     @Id
     private String _id;
 

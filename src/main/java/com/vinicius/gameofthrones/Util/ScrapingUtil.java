@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.function.Function;
 import java.util.regex.Pattern;
 
 @Component
@@ -104,34 +105,49 @@ public class ScrapingUtil {
     private static BornModel getBorn(Element data) {
 
         Elements bornElements = data.select("div.pi-data-value.pi-font a");
-        Map<String, String> bornCharacter = new HashMap<>();
 
-        if (!bornElements.isEmpty()) {
-            String year = bornElements.get(0).attr("title");
-            bornCharacter.put("Timeline", year);
-        } else {
-            bornCharacter.put("Timeline", "unknown");
-        }
+        String timeline = "unknown";
+        List<String> locations = new ArrayList<>();
+        Pattern yearPattern = Pattern.compile("\\d{1,4}\\s*(AC|BC)"); // Padrão para anos (ex: "202 AC", "114 BC")
 
-        StringBuilder location = new StringBuilder();
-        Pattern removePattern = Pattern.compile("\\[.*?]");
+        for (Element link : bornElements) {
+            String href = link.attr("href");
+            String title = link.attr("title");
+            String text = removeAscString(link.text()); // Use seu método removeAscString
 
-        for (int i = 1; i < bornElements.size(); i++) {
-            String text = bornElements.get(i).text();
-            text = removePattern.matcher(text).replaceAll("");
-            if (!text.trim().isEmpty()) {
-                if (!location.isEmpty()) {
-                    location.append(", ");
+            // Ignora links de citação (ex: [1], [a])
+            if (link.hasClass("cite-bracket") || href.startsWith("#cite_note")) {
+                continue;
+            }
+
+            // Prioriza o 'title' se ele contiver um ano
+            if (title != null && yearPattern.matcher(title).find()) {
+                timeline = title;
+            } else if (yearPattern.matcher(text).find()) {
+                // Se o texto do link for um ano
+                timeline = text;
+            } else if (title != null && !title.isEmpty() && !title.startsWith("Category:")) {
+                // Se for um link de wiki (não categoria) e tiver um título, pode ser um local
+                if (!locations.contains(title) && !title.contains("AC") && !title.contains("BC")) { // Evita adicionar anos como locais
+                    locations.add(title);
                 }
-                location.append(text.trim());
+            } else if (!text.isEmpty() && !text.startsWith("Category:") && !text.contains("AC") && !text.contains("BC")) {
+                // Se o texto for um local e não for um ano
+                if (!locations.contains(text)) {
+                    locations.add(text);
+                }
             }
         }
 
-        bornCharacter.put("Local", !location.isEmpty() ? location.toString() : "unknown");
-
         BornModel bornModel = new BornModel();
-        bornModel.fromMap(bornCharacter);
+        Map<String, String> bornCharacterMap = new HashMap<>();
+
+        bornCharacterMap.put("Timeline", timeline);
+        bornCharacterMap.put("Local", String.join(", ", locations.stream().distinct().toList())); // Remove duplicatas e junta os locais
+
+        bornModel.fromMap(bornCharacterMap);
         return bornModel;
+
     }
 
     private static DiedModel getDied(Element data) {
@@ -371,6 +387,70 @@ public class ScrapingUtil {
         }
     }
 
+    public List<StarringModel> makeListStarring(List<StarringModel> dados, Element dataValue) {
+
+        var value = dataValue.select("div.pi-data-value.pi-font a");
+        value.forEach(seasonValue -> {
+            System.out.println("+++++++++++++++++++");
+            Document doc = null;
+            String url = null;
+            if (seasonValue.attr("href").contains("#")) {
+                return;
+            } else {
+                url = currentUrl + seasonValue.attr("href");
+            }
+            System.out.println(seasonValue);
+            try {
+                doc = Jsoup.connect(url).get();
+                Elements elements = doc.select("aside.portable-infobox.pi-background.pi-border-color.pi-theme-Westeros.pi-theme-Thrones.pi-layout-default");
+
+                var name = elements.select("h2.pi-item.pi-item-spacing.pi-title.pi-secondary-background").text();
+                if (name.isEmpty()){
+                    return;
+                }
+                var img = elements.select("figure.pi-item.pi-image a").attr("href");
+
+                var section = elements.select("section.pi-item.pi-group.pi-border-color");
+                if (seasonValue.attr("href").contains("/wiki/Carice_van_Houten")){
+                    section.forEach( e -> {
+                        System.out.println(e.select("div.pi-data-value.pi-font").html());
+                    });
+                }
+                List<String> finalResult = new ArrayList<>();
+                if (!section.isEmpty()) {
+                    Elements biografia = section.get(0).select("div.pi-data-value.pi-font");
+
+                    for (String dado : biografia.html().split("<br>")) {
+                        finalResult.add(dado.trim());
+                    }
+                }
+
+                String fullName = finalResult.stream()
+                        .filter(s -> !s.matches(".*[\\d,].*"))
+                        .findFirst()
+                        .orElse(null);
+
+                String born = finalResult.stream()
+                        .filter(s -> s.contains("age"))
+                        .findFirst()
+                        .orElse(null);
+
+
+                String locate = finalResult.stream()
+                        .filter(s -> s.contains(",") && !s.contains("age"))
+                        .findFirst()
+                        .orElse(null);
+
+                dados.add(new StarringModel(img, name, fullName, born, locate));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
+        System.out.println(dados);
+        return dados;
+
+    }
+
     public GameOfThronesModel GameOfThrones() throws IOException {
         Map<String, Object> modelMap = new HashMap<>();
 
@@ -389,7 +469,7 @@ public class ScrapingUtil {
         Elements elements = doc.select("aside.portable-infobox.pi-background.pi-border-color.pi-theme-Westeros.pi-theme-Thrones.pi-layout-default.type-episode");
 
         processor.register("Seasons", dv -> makeListSeason(seasonPreview, dv));
-        processor.register("Starring", dv -> modelListBuilder.makeList(starring, dv, StarringModel::new));
+        processor.register("Starring", dv -> makeListStarring(starring, dv));
         processor.register("Creator", dv -> modelListBuilder.makeList(creators, dv, CreatorModel::new));
         processor.register("Producers", dv -> modelListBuilder.makeList(producers, dv, ProducersModel::new));
         processor.register("Writers", dv -> modelListBuilder.makeList(writers, dv, WritersModel::new));
@@ -400,21 +480,16 @@ public class ScrapingUtil {
             sesson.select("section.pi-item.pi-group.pi-border-color").forEach(session -> {
                 var dataSource = session.select(elemento);
                 dataSource.forEach(dataValue -> {
-                    System.out.println(seasonPreview);
                     var data = dataValue.attr("data-source");
-                    System.out.println(data);
                     if (headers.contains(data)) {
                         processor.process(data, dataValue, modelMap);
                     } else {
                         String value = dataValue.select("div.pi-data-value.pi-font").text();
-                        System.out.println("____________________");
-                        System.out.println(data + " " + value);
                         modelMap.put(data, removeAscString(value));
                     }
                 });
             });
         });
-
         return new GameOfThronesModel(modelMap);
     }
 

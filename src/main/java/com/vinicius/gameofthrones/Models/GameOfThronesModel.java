@@ -7,7 +7,7 @@ import com.vinicius.gameofthrones.Util.ProducersModel;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.hateoas.RepresentationModel;
+
 
 import java.util.List;
 import java.util.Map;
@@ -16,7 +16,7 @@ import java.util.Map;
 @NoArgsConstructor
 @Data
 @Document(collection = "gameofthrones")
-public class GameOfThronesModel extends RepresentationModel<GameOfThronesModel> {
+public class GameOfThronesModel  {
     @Id
     private String _id;
 

@@ -1,10 +1,10 @@
 package com.vinicius.gameofthrones.Models.Season;
 
 import lombok.Data;
-import org.springframework.hateoas.RepresentationModel;
+
 
 @Data
-public class SeasonPreview extends RepresentationModel<SeasonPreview> {
+public class SeasonPreview {
     private String _id;
     private String season;
     private String name;
