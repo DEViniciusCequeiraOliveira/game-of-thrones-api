@@ -581,11 +581,6 @@ public class ScrapingUtil {
 
                     var episode = new EpisodePreview(episodeNum, image, title, href, airDate);
                     episodes.add(episode);
-                    try {
-                        episode(href, subTitle);
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
                 }
             });
         });
@@ -594,13 +589,12 @@ public class ScrapingUtil {
         return new SeasonModel(modelMap);
     }
 
-    public static EpisodeModel episode(String url, String season) throws IOException {
+    public static EpisodeModel episode() throws IOException {
+
         Document doc = Jsoup.connect(currentUrl + url).get();
         Elements asides = doc.select("aside.portable-infobox.pi-background.pi-border-color.pi-theme-Westeros.pi-theme-Thrones.pi-layout-default.type-episode");
         var title = asides.select("h2.pi-item.pi-item-spacing.pi-title.pi-secondary-background").text();
         System.out.println("========================");
-//        System.out.println(season);
-//        System.out.println(title);
         asides.forEach(aside -> {
             aside.select("section.pi-item.pi-group.pi-border-color").forEach(section -> {
                 section.select("section.pi-item.pi-group.pi-border-color").forEach(dv -> {
@@ -608,7 +602,6 @@ public class ScrapingUtil {
                     dv.select("div.pi-item.pi-data.pi-item-spacing.pi-border-color").forEach(dataValue -> {
                         var data = dataValue.attr("data-source");
                         var value = dataValue.select("div.pi-data-value.pi-font").text();
-//                        System.out.println(data);
                     });
                 });
             });
