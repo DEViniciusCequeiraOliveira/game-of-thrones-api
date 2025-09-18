@@ -1,4 +1,4 @@
-package com.vinicius.gameofthrones.Models;
+package com.vinicius.gameofthrones.Models.house;
 
 import com.vinicius.gameofthrones.Util.ScrapingUtil;
 import lombok.*;
@@ -20,14 +20,14 @@ public class HouseModel {
     private String name;
     private String coatOfArms;
     private String words;
-    private List<GeralModel> titles;
+    private List<HouseRelation> titles;
     private String otherEstates;
     private String seat;
     private String region;
     private String head;
     private String heir;
     private String overlords;
-    private List<GeralModel> vassals;
+    private List<HouseRelation> vassals;
     private String religion;
     private String founded;
 
@@ -35,14 +35,14 @@ public class HouseModel {
         this.name = ScrapingUtil.removeAscString((String) datasHouse.get("Name"));
         this.coatOfArms = ScrapingUtil.removeAscString((String) datasHouse.get("Coat of arms"));
         this.words = ScrapingUtil.removeAscString((String) datasHouse.get("Words"));
-        this.titles = (List<GeralModel>) datasHouse.get("Title");
+        this.titles = (List<HouseRelation>) datasHouse.get("Title");
         this.otherEstates = ScrapingUtil.removeAscString((String) datasHouse.get("Seat"));
         this.seat = ScrapingUtil.removeAscString((String) datasHouse.get("Seat"));
         this.region = ScrapingUtil.removeAscString((String) datasHouse.get("Region"));
         this.head = ScrapingUtil.removeAscString((String) datasHouse.get("Head"));
         this.heir = ScrapingUtil.removeAscString((String) datasHouse.get("Heir"));
         this.overlords = ScrapingUtil.removeAscString((String) datasHouse.get("Overlords"));
-        this.vassals = (List<GeralModel>) datasHouse.get("Vassals");
+        this.vassals = (List<HouseRelation>) datasHouse.get("Vassals");
         this.religion = ScrapingUtil.removeAscString((String) datasHouse.get("Religion"));
         this.founded = ScrapingUtil.removeAscString((String) datasHouse.get("Founded"));
     }

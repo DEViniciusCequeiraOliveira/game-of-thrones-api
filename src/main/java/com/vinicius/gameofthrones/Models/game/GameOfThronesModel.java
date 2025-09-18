@@ -1,9 +1,11 @@
-package com.vinicius.gameofthrones.Models;
+package com.vinicius.gameofthrones.Models.game;
 
-import com.vinicius.gameofthrones.Models.Season.SeasonModel;
 import com.vinicius.gameofthrones.Models.Season.SeasonPreview;
-import com.vinicius.gameofthrones.Util.CreatorModel;
-import com.vinicius.gameofthrones.Util.ProducersModel;
+import com.vinicius.gameofthrones.Models.StarringModel;
+import com.vinicius.gameofthrones.Models.staff.CreatorModel;
+import com.vinicius.gameofthrones.Models.staff.DirectorModel;
+import com.vinicius.gameofthrones.Models.staff.ProducersModel;
+import com.vinicius.gameofthrones.Models.staff.WritersModel;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;

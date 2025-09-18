@@ -2,7 +2,7 @@ package com.vinicius.gameofthrones.dto;
 
 import java.util.Map;
 
-import com.vinicius.gameofthrones.Models.DiedModel;
+import com.vinicius.gameofthrones.Models.characters.DiedModel;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

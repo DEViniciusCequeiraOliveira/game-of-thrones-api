@@ -1,10 +1,10 @@
 package com.vinicius.gameofthrones.Models.Season;
 
-import com.vinicius.gameofthrones.Models.DirectorModel;
+import com.vinicius.gameofthrones.Models.staff.DirectorModel;
 import com.vinicius.gameofthrones.Models.Episode.EpisodePreview;
 import com.vinicius.gameofthrones.Models.StarringModel;
-import com.vinicius.gameofthrones.Models.WritersModel;
-import com.vinicius.gameofthrones.Util.ProducersModel;
+import com.vinicius.gameofthrones.Models.staff.WritersModel;
+import com.vinicius.gameofthrones.Models.staff.ProducersModel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

@@ -1,10 +1,22 @@
 package com.vinicius.gameofthrones.Util;
 
 import com.vinicius.gameofthrones.Models.*;
+import com.vinicius.gameofthrones.Models.Episode.EpisodeModel;
 import com.vinicius.gameofthrones.Models.Episode.EpisodePreview;
 import com.vinicius.gameofthrones.Models.Season.SeasonModel;
 import com.vinicius.gameofthrones.Models.Season.SeasonPreview;
+import com.vinicius.gameofthrones.Models.characters.BornModel;
+import com.vinicius.gameofthrones.Models.characters.CharacterModel;
+import com.vinicius.gameofthrones.Models.characters.DiedModel;
+import com.vinicius.gameofthrones.Models.house.HouseModel;
+import com.vinicius.gameofthrones.Models.house.HouseRelation;
+import com.vinicius.gameofthrones.Models.staff.CreatorModel;
+import com.vinicius.gameofthrones.Models.staff.DirectorModel;
+import com.vinicius.gameofthrones.Models.staff.ProducersModel;
+import com.vinicius.gameofthrones.Models.staff.WritersModel;
 import com.vinicius.gameofthrones.Service.IDataProcessor;
+import com.vinicius.gameofthrones.Models.game.GameOfThronesModel;
+import com.vinicius.gameofthrones.Models.game.IGameOfThrones;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -14,7 +26,6 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.function.Function;
 import java.util.regex.Pattern;
 
 @Component
@@ -178,7 +189,7 @@ public class ScrapingUtil {
                 Elements data = docChar.select("div.pi-item.pi-data");
                 Map<String, Object> datasHouse = new HashMap<>();
 
-                // Criação do modelo da casa
+
                 HouseModel houseModel = new HouseModel();
 
                 datasHouse.put("Image", docChar.select(".pi-image-thumbnail").attr("src"));
@@ -369,29 +380,25 @@ public class ScrapingUtil {
     private static void formatarElementos(String nome, String element, Element data, String label, Map<String, Object> datasHouse) {
         if (label.equals(element)) {
             Elements dados = data.select("div.pi-data-value.pi-font a");
-            List<GeralModel> geralModel = new ArrayList<>();
+            List<HouseRelation> houseRelation = new ArrayList<>();
 
             dados.forEach(dado -> {
-                // cria um objeto para cada casa
-                GeralModel vm = new GeralModel();
-                vm.setName(dado.text());
-                vm.setLabel(label);
-                geralModel.add(vm);
+                HouseRelation vm = new HouseRelation(dado.text(),label);
+                houseRelation.add(vm);
             });
-            // Adiciona a lista de items ao mapa
-            datasHouse.put(nome, geralModel);
+            datasHouse.put(nome, houseRelation);
         } else {
-            // Adiciona outros dados ao mapa
             String value = data.select("div.pi-data-value").text();
             datasHouse.put(label, value);
         }
     }
 
     public List<StarringModel> makeListStarring(List<StarringModel> dados, Element dataValue) {
+        Map<String, String> map = new HashMap<>();
 
         var value = dataValue.select("div.pi-data-value.pi-font a");
         value.forEach(seasonValue -> {
-            System.out.println("+++++++++++++++++++");
+
             Document doc = null;
             String url = null;
             if (seasonValue.attr("href").contains("#")) {
@@ -399,23 +406,19 @@ public class ScrapingUtil {
             } else {
                 url = currentUrl + seasonValue.attr("href");
             }
-            System.out.println(seasonValue);
+
             try {
                 doc = Jsoup.connect(url).get();
                 Elements elements = doc.select("aside.portable-infobox.pi-background.pi-border-color.pi-theme-Westeros.pi-theme-Thrones.pi-layout-default");
 
                 var name = elements.select("h2.pi-item.pi-item-spacing.pi-title.pi-secondary-background").text();
-                if (name.isEmpty()){
+                if (name.isEmpty()) {
                     return;
                 }
                 var img = elements.select("figure.pi-item.pi-image a").attr("href");
 
                 var section = elements.select("section.pi-item.pi-group.pi-border-color");
-                if (seasonValue.attr("href").contains("/wiki/Carice_van_Houten")){
-                    section.forEach( e -> {
-                        System.out.println(e.select("div.pi-data-value.pi-font").html());
-                    });
-                }
+
                 List<String> finalResult = new ArrayList<>();
                 if (!section.isEmpty()) {
                     Elements biografia = section.get(0).select("div.pi-data-value.pi-font");
@@ -441,7 +444,19 @@ public class ScrapingUtil {
                         .findFirst()
                         .orElse(null);
 
-                dados.add(new StarringModel(img, name, fullName, born, locate));
+                if (section.size() > 1) {
+                    var dataElements = section.get(1).select("div.pi-item.pi-data.pi-item-spacing.pi-border-color");
+                    dataElements.forEach(datas -> {
+                        var data = datas.attr("data-source");
+                        var obj = datas.select("div.pi-data-value.pi-font");
+                        String valor = obj.text();
+                        map.put(data, valor);
+                        System.out.println("++++++++++++++++");
+                        System.out.println(data);
+                    });
+                }
+
+                dados.add(new StarringModel(img, name, fullName, born, locate, map));
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -548,7 +563,6 @@ public class ScrapingUtil {
                         processor.process(dataSource, dataValue, modelMap);
                     } else {
                         String value = dataValue.select("div.pi-data-value.pi-font").text();
-                        System.out.println(dataSource);
                         modelMap.put(dataSource, removeAscString(value));
                     }
                 });
@@ -567,11 +581,44 @@ public class ScrapingUtil {
 
                     var episode = new EpisodePreview(episodeNum, image, title, href, airDate);
                     episodes.add(episode);
+                    try {
+                        episode(href, subTitle);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
                 }
             });
         });
         modelMap.put("Episode", episodes);
 
         return new SeasonModel(modelMap);
+    }
+
+    public static EpisodeModel episode(String url, String season) throws IOException {
+        Document doc = Jsoup.connect(currentUrl + url).get();
+        Elements asides = doc.select("aside.portable-infobox.pi-background.pi-border-color.pi-theme-Westeros.pi-theme-Thrones.pi-layout-default.type-episode");
+        var title = asides.select("h2.pi-item.pi-item-spacing.pi-title.pi-secondary-background").text();
+        System.out.println("========================");
+//        System.out.println(season);
+//        System.out.println(title);
+        asides.forEach(aside -> {
+            aside.select("section.pi-item.pi-group.pi-border-color").forEach(section -> {
+                section.select("section.pi-item.pi-group.pi-border-color").forEach(dv -> {
+
+                    dv.select("div.pi-item.pi-data.pi-item-spacing.pi-border-color").forEach(dataValue -> {
+                        var data = dataValue.attr("data-source");
+                        var value = dataValue.select("div.pi-data-value.pi-font").text();
+//                        System.out.println(data);
+                    });
+                });
+            });
+        });
+        System.out.println("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+        Elements rows = doc.select("table");
+        if (!rows.isEmpty()){
+            var table = rows.get(0);
+            System.out.println(table);
+        }
+        return null;
     }
 }

@@ -1,4 +1,4 @@
-package com.vinicius.gameofthrones.Models;
+package com.vinicius.gameofthrones.Models.game;
 
 
 import org.jsoup.nodes.Element;

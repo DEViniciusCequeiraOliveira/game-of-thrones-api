@@ -2,7 +2,7 @@ package com.vinicius.gameofthrones.dto;
 
 import java.util.Map;
 
-import com.vinicius.gameofthrones.Models.BornModel;
+import com.vinicius.gameofthrones.Models.characters.BornModel;
 
 import lombok.Getter;
 import lombok.Setter;

@@ -1,4 +1,4 @@
-package com.vinicius.gameofthrones.Models;
+package com.vinicius.gameofthrones.Models.characters;
 
 import java.util.Map;
 
@@ -13,12 +13,13 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class BornModel {
+public class DiedModel {
     private String timeline;
     private String local;
 
-    public void fromMap(Map<String, String> bornCharacter) {
-        this.timeline = bornCharacter.get("Timeline");
-        this.local = bornCharacter.get("Local");
+    public void fromMap(Map<String, String> diedCharacter) {
+        this.timeline = diedCharacter.get("Timeline");
+        this.local = diedCharacter.get("Local");
     }
+
 }

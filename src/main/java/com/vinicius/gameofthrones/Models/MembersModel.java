@@ -1,5 +1,6 @@
 package com.vinicius.gameofthrones.Models;
 
+import com.vinicius.gameofthrones.Models.characters.CharacterModel;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;

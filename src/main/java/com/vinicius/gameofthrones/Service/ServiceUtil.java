@@ -30,6 +30,8 @@ public class ServiceUtil {
 
     @Autowired
     private SeasonRepository seasonRepository;
+    @Autowired
+    private StarringRepository starringRepository;
 
     public void saveMember() throws IOException {
         memberRepository.insert(util.getMember());
@@ -48,7 +50,10 @@ public class ServiceUtil {
     }
 
     public void saveGameOfThrones() throws IOException {
-        gameOfThronesRepository.insert(util.GameOfThrones());
+        var model = util.GameOfThrones();
+        var modelStarring = starringRepository.insert(model.getStarring());
+        model.setStarring(modelStarring);
+        gameOfThronesRepository.insert(model);
     }
 
     public void saveSeason() throws IOException {

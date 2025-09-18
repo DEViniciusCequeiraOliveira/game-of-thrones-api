@@ -14,14 +14,14 @@ import java.util.Map;
 @AllArgsConstructor
 @NoArgsConstructor
 @Document(collection = "castles")
-public class CastlesDados{
+public class CastlesDados {
     @Id
     String _id;
     String name;
     List<CastlesModel> castles;
 
-    public void fromMap(Map<String,Object> dados) {
+    public void fromMap(Map<String, Object> dados) {
         this.name = (String) dados.get("name");
-        this.castles =(List<CastlesModel>)  dados.get("castles");
+        this.castles = (List<CastlesModel>) dados.get("castles");
     }
 }

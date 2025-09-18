@@ -1,6 +1,6 @@
 package com.vinicius.gameofthrones.Controller;
 
-import com.vinicius.gameofthrones.Models.GameOfThronesModel;
+import com.vinicius.gameofthrones.Models.game.GameOfThronesModel;
 import com.vinicius.gameofthrones.Service.GameOfThronesService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

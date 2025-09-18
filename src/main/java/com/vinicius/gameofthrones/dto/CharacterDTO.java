@@ -1,6 +1,6 @@
 package com.vinicius.gameofthrones.dto;
 
-import com.vinicius.gameofthrones.Models.CharacterModel;
+import com.vinicius.gameofthrones.Models.characters.CharacterModel;
 
 import lombok.Getter;
 import lombok.Setter;

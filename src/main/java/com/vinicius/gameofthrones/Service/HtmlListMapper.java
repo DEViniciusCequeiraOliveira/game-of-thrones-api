@@ -1,6 +1,6 @@
 package com.vinicius.gameofthrones.Service;
 
-import com.vinicius.gameofthrones.Models.IGameOfThrones;
+import com.vinicius.gameofthrones.Models.game.IGameOfThrones;
 import org.jsoup.nodes.Element;
 import org.springframework.stereotype.Component;
 

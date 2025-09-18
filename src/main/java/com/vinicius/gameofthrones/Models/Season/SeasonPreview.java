@@ -5,7 +5,6 @@ import lombok.Data;
 
 @Data
 public class SeasonPreview {
-    private String _id;
     private String season;
     private String name;
     private String href;

@@ -1,4 +1,4 @@
-package com.vinicius.gameofthrones.Models;
+package com.vinicius.gameofthrones.Models.characters;
 
 import java.util.Map;
 
